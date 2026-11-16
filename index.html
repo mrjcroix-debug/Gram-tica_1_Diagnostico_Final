@@ -1,0 +1,3243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="artifact-type" content="tool">
+  <meta name="design-style" content="charter">
+  <title>Simulado Diagnóstico de Gramática, Morfologia e Análise Linguística — ETEC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Inter:wght@100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+
+      /* Page and surfaces (Charter) */
+      --background: #f7f4ec;
+      --surface-container-low: #fffdf8;
+      --surface-container: #ece5d4;
+      --surface-container-high: #e3dac4;
+
+      /* Ink */
+      --on-surface: #1c1f26;
+      --on-surface-variant: #4f5360;
+
+      /* Rules */
+      --outline: #b08d57;
+      --outline-variant: #d9cfb8;
+
+      /* Accents */
+      --primary: #14213d;
+      --on-primary: #f7f4ec;
+      --primary-container: #e3e6ee;
+      --on-primary-container: #14213d;
+      --secondary: #2d5a4a;
+      --secondary-container: #e2eee9;
+      --tertiary: #8a6a35;
+      --tertiary-container: #f4ebd8;
+      --error: #9b2c2c;
+      --error-container: #fae8e8;
+      --on-error: #f7f4ec;
+
+      /* Semantic */
+      --positive: #2d5a4a;
+      --warning: #8a6a35;
+      --focus: #14213d;
+
+      /* Data series */
+      --data-1: #14213d;
+      --data-2: #8a6a35;
+      --data-3: #2d5a4a;
+      --data-4: #5b7aa0;
+      --data-context: #c2bba9;
+
+      /* Typography */
+      --font-headline: 'Libre Caslon Text', serif;
+      --font-body: 'Inter', sans-serif;
+      --font-label: 'Inter', sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+
+      --display-size: clamp(1.65rem, 1.3rem + 1.2vw, 2.25rem);
+      --headline-size: clamp(1.25rem, 1.08rem + 0.5vw, 1.5rem);
+      --subhead-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+      --body-size: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+      --label-size: 0.75rem;
+
+      /* Spacing scale */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2.5rem;
+      --space-2xl: 4rem;
+
+      /* Shape & Charter Effects */
+      --rounded: 0.125rem;
+      --rounded-lg: 0.125rem;
+      --brass-rule: 2px solid var(--outline);
+      --hairline: 1px solid var(--outline-variant);
+      --leaf-underline: 0 1px 0 var(--outline-variant);
+      --band-border: 3px solid var(--outline);
+      --band-lede: color-mix(in srgb, var(--on-primary) 78%, var(--primary));
+      --band-kicker: color-mix(in srgb, var(--outline) 75%, var(--on-primary));
+      --watermark-ink: color-mix(in srgb, var(--primary) 6%, transparent);
+
+      /* Motion */
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+      --dur-micro: 120ms;
+      --dur-short: 220ms;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      overflow-x: clip;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background);
+      color: var(--on-surface);
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+      line-height: 1.6;
+    }
+    header { position: static !important; }
+
+    /* Anti-fraud selection block during exam */
+    body.exam-active {
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+    }
+    body.exam-active input,
+    body.exam-active select,
+    body.exam-active textarea {
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    /* Watermark overlay */
+    #watermark-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 40;
+      overflow: hidden;
+      display: none;
+    }
+    body.exam-active #watermark-layer {
+      display: block;
+    }
+    .watermark-grid {
+      width: 160%;
+      height: 160%;
+      margin: -30%;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-xl);
+      transform: rotate(-24deg);
+      align-items: center;
+      justify-items: center;
+    }
+    .watermark-item {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--watermark-ink);
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    /* Title Band (Charter Treatment #1 & #2) */
+    .title-band {
+      background: var(--primary);
+      color: var(--on-primary);
+      padding: var(--space-lg) var(--space-lg);
+      border-bottom: var(--band-border);
+    }
+    .title-band-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: var(--space-md);
+    }
+    .kicker {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--band-kicker);
+      margin: 0 0 var(--space-xs) 0;
+    }
+    .title-band h1 {
+      font-family: var(--font-headline);
+      font-weight: 400;
+      font-size: var(--display-size);
+      line-height: 1.12;
+      letter-spacing: -0.01em;
+      color: var(--on-primary);
+      margin: 0;
+      max-width: 34ch;
+    }
+    .title-band .lede {
+      font-size: var(--body-size);
+      color: var(--band-lede);
+      margin: var(--space-xs) 0 0 0;
+      max-width: 65ch;
+    }
+    /* Main Container */
+    .page-grid {
+      display: grid;
+      gap: var(--space-lg);
+      padding: var(--space-lg);
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 10;
+    }
+    .page-grid * { min-width: 0; }
+
+    /* Views */
+    .view-section { display: none; }
+    .view-section.active { display: block; }
+
+    /* Buttons */
+    .btn {
+      font-family: var(--font-label);
+      font-size: 0.875rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      padding: 0.65rem 1.25rem;
+      min-height: 44px;
+      border-radius: var(--rounded);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out), box-shadow var(--dur-micro) var(--ease-out);
+      text-decoration: none;
+    }
+    .btn:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: var(--on-primary);
+      border: 1px solid var(--primary);
+    }
+    .btn-primary:hover {
+      background: var(--on-surface);
+      border-color: var(--on-surface);
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+    .btn-secondary:hover {
+      background: var(--primary-container);
+    }
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    /* Charter Figure & Panel Cards */
+    .figure-card {
+      background: var(--surface-container-low);
+      border-top: var(--brass-rule);
+      box-shadow: var(--leaf-underline);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+    }
+    .section-head {
+      border-top: var(--brass-rule);
+      padding-top: var(--space-md);
+      border-bottom: var(--hairline);
+      padding-bottom: var(--space-sm);
+      margin-bottom: var(--space-md);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: var(--space-sm);
+    }
+    .section-head h2 {
+      font-family: var(--font-headline);
+      font-weight: 400;
+      font-size: var(--headline-size);
+      margin: 0;
+      color: var(--on-surface);
+    }
+    .section-kicker {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--tertiary);
+      margin: 0 0 var(--space-xs) 0;
+    }
+
+    /* Login Asymmetric Layout */
+    .login-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+      gap: var(--space-xl);
+      align-items: start;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      margin-bottom: var(--space-md);
+    }
+    .form-group label {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--on-surface);
+    }
+    .form-control {
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+      color: var(--on-surface);
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--rounded);
+      padding: 0.65rem 0.85rem;
+      min-height: 44px;
+      width: 100%;
+    }
+    select.form-control {
+      padding-right: 2.25rem;
+    }
+    .form-control:focus {
+      border-color: var(--primary);
+    }
+    .inline-error {
+      color: var(--error);
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-top: var(--space-xs);
+      display: none;
+    }
+    .inline-error.visible { display: block; }
+
+    /* Charter Specs List & Mentions Grid */
+    .spec-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      border-top: var(--hairline);
+    }
+    .spec-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: var(--space-md);
+      padding: var(--space-sm) 0;
+      border-bottom: var(--hairline);
+      font-size: 0.92rem;
+    }
+    .spec-key {
+      color: var(--on-surface-variant);
+      font-weight: 500;
+    }
+    .spec-val {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--on-surface);
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+
+    .mention-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 2.25rem;
+      padding: 0.2rem 0.55rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-radius: var(--rounded);
+      border: 1px solid currentColor;
+      letter-spacing: 0.04em;
+    }
+    .mention-MB { color: var(--secondary); background: var(--secondary-container); }
+    .mention-B { color: var(--primary); background: var(--primary-container); }
+    .mention-R { color: var(--tertiary); background: var(--tertiary-container); }
+    .mention-I { color: var(--error); background: var(--error-container); }
+
+    /* Security Notice */
+    .security-notice {
+      background: var(--surface-container);
+      border-left: 3px solid var(--outline);
+      padding: var(--space-md);
+      margin-top: var(--space-md);
+      font-size: 0.875rem;
+      color: var(--on-surface-variant);
+    }
+    .security-notice strong { color: var(--on-surface); }
+
+    /* Exam Control Bar */
+    .exam-status-bar {
+      background: var(--surface-container-low);
+      border-top: var(--brass-rule);
+      border-bottom: var(--hairline);
+      padding: var(--space-md) var(--space-lg);
+      margin-bottom: var(--space-lg);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-md);
+    }
+    .exam-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-lg);
+      align-items: center;
+    }
+    .meta-stat {
+      display: flex;
+      flex-direction: column;
+    }
+    .meta-stat-label {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--on-surface-variant);
+    }
+    .meta-stat-value {
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--primary);
+      font-variant-numeric: tabular-nums;
+    }
+    .progress-track {
+      width: 100%;
+      height: 6px;
+      background: var(--surface-container);
+      border-radius: var(--rounded);
+      overflow: hidden;
+      margin-top: var(--space-sm);
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      transition: width var(--dur-short) var(--ease-out);
+    }
+
+    .exam-filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-lg);
+      padding-bottom: var(--space-sm);
+      border-bottom: var(--hairline);
+    }
+    .filter-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+    }
+    .filter-tab {
+      font-family: var(--font-label);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      padding: 0.45rem 0.9rem;
+      min-height: 44px;
+      background: transparent;
+      color: var(--on-surface-variant);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--rounded);
+      cursor: pointer;
+    }
+    .filter-tab.active {
+      background: var(--primary);
+      color: var(--on-primary);
+      border-color: var(--primary);
+    }
+
+    /* Questions Container & Cards */
+    #questions-container {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-lg);
+    }
+    .question-card {
+      background: var(--surface-container-low);
+      border-top: var(--brass-rule);
+      box-shadow: var(--leaf-underline);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+    }
+    .question-card.answered {
+      border-top-color: var(--secondary);
+    }
+    .question-card.hidden-by-filter {
+      display: none;
+    }
+    .question-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+      padding-bottom: var(--space-sm);
+      border-bottom: var(--hairline);
+    }
+    .topic-stamp {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--tertiary);
+      border: 1px solid var(--outline);
+      padding: 0.15rem 0.55rem;
+      border-radius: var(--rounded);
+    }
+    .status-stamp {
+      font-family: var(--font-mono);
+      font-size: var(--label-size);
+      font-weight: 600;
+      color: var(--on-surface-variant);
+    }
+    .question-card.answered .status-stamp {
+      color: var(--secondary);
+    }
+
+    /* Long Reading Passage */
+    .passage-box {
+      background: var(--background);
+      border-left: 3px solid var(--primary);
+      border-top: var(--hairline);
+      border-right: var(--hairline);
+      border-bottom: var(--hairline);
+      padding: var(--space-md) var(--space-lg);
+      margin-bottom: var(--space-md);
+    }
+    .passage-box summary {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--primary);
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .passage-title {
+      font-family: var(--font-headline);
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--on-surface);
+      margin: var(--space-sm) 0 var(--space-xs) 0;
+    }
+    .passage-text {
+      font-family: var(--font-headline);
+      font-size: 0.98rem;
+      line-height: 1.65;
+      color: var(--on-surface);
+      max-width: 72ch;
+      margin: var(--space-sm) 0;
+      text-align: left;
+    }
+    .passage-source {
+      font-family: var(--font-label);
+      font-size: 0.78rem;
+      color: var(--on-surface-variant);
+      margin-top: var(--space-xs);
+    }
+
+    /* Morphological Tree Container */
+    .morph-tree-wrap {
+      background: var(--background);
+      border: var(--hairline);
+      padding: var(--space-md);
+      margin: var(--space-md) 0;
+      overflow-x: auto;
+    }
+    .morph-tree-caption {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--tertiary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .question-stem {
+      font-size: 1.02rem;
+      font-weight: 500;
+      color: var(--on-surface);
+      margin: 0 0 var(--space-md) 0;
+      max-width: 75ch;
+      line-height: 1.6;
+    }
+
+    /* Options A, B, C, D */
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+    .option-btn {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-md);
+      width: 100%;
+      text-align: left;
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--rounded);
+      padding: 0.75rem var(--space-md);
+      min-height: 44px;
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: var(--on-surface);
+      transition: background-color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out);
+    }
+    .option-btn:hover {
+      background: var(--surface-container);
+      border-color: var(--outline);
+    }
+    .option-btn.selected {
+      background: var(--primary-container);
+      border-color: var(--primary);
+      box-shadow: inset 3px 0 0 var(--primary);
+    }
+    .option-letter {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      font-size: 0.875rem;
+      min-width: 1.75rem;
+      height: 1.75rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--outline-variant);
+      background: var(--background);
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+    .option-btn.selected .option-letter {
+      background: var(--primary);
+      color: var(--on-primary);
+      border-color: var(--primary);
+    }
+
+    /* Exam Footer Submission */
+    .exam-submit-panel {
+      background: var(--surface-container-low);
+      border-top: var(--brass-rule);
+      padding: var(--space-lg);
+      margin-top: var(--space-xl);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-md);
+    }
+    .submit-warning {
+      font-size: 0.9rem;
+      color: var(--error);
+      font-weight: 500;
+      display: none;
+      margin-top: var(--space-xs);
+    }
+    .submit-warning.visible { display: block; }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+    .figure-label {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--on-surface-variant);
+      margin: 0 0 var(--space-xs) 0;
+    }
+    .figure-value {
+      font-family: var(--font-headline);
+      font-weight: 400;
+      font-size: 2rem;
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums lining-nums;
+      color: var(--on-surface);
+      margin: 0;
+    }
+    .figure-delta {
+      font-size: 0.8125rem;
+      color: var(--tertiary);
+      font-weight: 600;
+      margin-top: var(--space-xs);
+    }
+
+    /* Topic Diagnostic Bars */
+    .topic-bars {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    .topic-bar-row {
+      display: grid;
+      grid-template-columns: minmax(180px, 1.4fr) minmax(120px, 2fr) auto;
+      align-items: center;
+      gap: var(--space-md);
+    }
+    .topic-bar-track {
+      height: 10px;
+      background: var(--surface-container);
+      border-radius: var(--rounded);
+      overflow: hidden;
+    }
+    .topic-bar-fill {
+      height: 100%;
+      background: var(--primary);
+    }
+    .topic-bar-fill.weak { background: var(--error); }
+    .topic-bar-fill.strong { background: var(--secondary); }
+    .topic-bar-num {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      min-width: 5.5rem;
+      text-align: right;
+    }
+
+    /* Security Toast */
+    #security-toast {
+      position: fixed;
+      bottom: var(--space-lg);
+      right: var(--space-lg);
+      background: var(--primary);
+      color: var(--on-primary);
+      border-left: 4px solid var(--outline);
+      padding: var(--space-sm) var(--space-md);
+      font-size: 0.85rem;
+      font-weight: 500;
+      z-index: 70;
+      display: none;
+      max-width: 340px;
+    }
+    #security-toast.visible { display: block; }
+
+    @media (max-width: 640px) {
+      .login-layout { grid-template-columns: 1fr; }
+      .page-grid { padding: var(--space-md); }
+      .topic-bar-row { grid-template-columns: 1fr; gap: var(--space-xs); }
+      .exam-status-bar { padding: var(--space-md); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Watermark anti-scanner -->
+  <div id="watermark-layer" aria-hidden="true">
+    <div class="watermark-grid" id="watermark-grid"></div>
+  </div>
+
+  <!-- Security Toast -->
+  <div id="security-toast" role="status" aria-live="polite"></div>
+
+  <!-- Title Band -->
+  <header class="title-band">
+    <div class="title-band-inner">
+      <div>
+        <p class="kicker">ETEC · Ensino Médio em Tempo Integral · 1º Ano</p>
+        <h1>Simulado Diagnóstico de Gramática, Morfologia e Análise Linguística</h1>
+        <p class="lede">Avaliação objetiva com 100 questões de alto rigor (padrão FUVEST, ITA, Provão Paulista e ENEM), textos integrais e árvores de decomposição morfológica.</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-grid">
+
+    <!-- VIEW 1: STUDENT LOGIN -->
+    <section id="login-view" class="view-section active" aria-labelledby="login-heading">
+      <div class="login-layout">
+        <div class="figure-card">
+          <p class="section-kicker">Identificação do Candidato</p>
+          <div class="section-head">
+            <h2 id="login-heading">Registro para Início da Avaliação</h2>
+          </div>
+
+          <form id="login-form" onsubmit="handleStartExam(event)" novalidate>
+            <div class="form-group">
+              <label for="student-name">Nome Completo do Estudante</label>
+              <input type="text" id="student-name" class="form-control" autocomplete="off" placeholder="Digite seu nome completo sem abreviações">
+              <span id="name-error" class="inline-error">Informe seu nome completo (mínimo de 5 caracteres e nome/sobrenome).</span>
+            </div>
+
+            <div class="form-group">
+              <label for="student-turma">Turma (Ensino Médio Integral)</label>
+              <select id="student-turma" class="form-control">
+                <option value="">Selecione sua turma…</option>
+                <option value="1º DS-A">1º DS-A</option>
+                <option value="1º DS-B">1º DS-B</option>
+                <option value="1º ADM-A">1º ADM-A</option>
+                <option value="1º ADM-B">1º ADM-B</option>
+              </select>
+              <span id="turma-error" class="inline-error">Selecione a sua turma para prosseguir.</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="start-exam-btn">
+              Iniciar Exame (100 Questões)
+            </button>
+          </form>
+
+          <div class="security-notice">
+            <strong>Registro e integridade:</strong> Ao finalizar, seu nome, turma, respostas e resultado serão encaminhados ao Google Forms vinculado para análise docente. As questões e alternativas são embaralhadas e a marca d’água é individual; essas medidas não impedem totalmente capturas de tela ou inspeção do código.
+          </div>
+        </div>
+
+        <aside class="figure-card">
+          <p class="section-kicker">Estrutura e Critérios ETEC</p>
+          <div class="section-head">
+            <h2>Matriz Diagnóstica</h2>
+          </div>
+
+          <ul class="spec-list">
+            <li><span class="spec-key">Total de Itens</span><span class="spec-val">100 questões (A–D)</span></li>
+            <li><span class="spec-key">Textos de Base</span><span class="spec-val">8 ensaios (~300 palavras)</span></li>
+            <li><span class="spec-key">Análise Morfológica</span><span class="spec-val">15 árvores detalhadas</span></li>
+            <li><span class="spec-key">0% a 25% de acertos</span><span class="spec-val"><span class="mention-badge mention-I">I · Insuficiente</span></span></li>
+            <li><span class="spec-key">&gt; 25% a 50% de acertos</span><span class="spec-val"><span class="mention-badge mention-R">R · Regular</span></span></li>
+            <li><span class="spec-key">&gt; 50% a 75% de acertos</span><span class="spec-val"><span class="mention-badge mention-B">B · Bom</span></span></li>
+            <li><span class="spec-key">&gt; 75% a 100% de acertos</span><span class="spec-val"><span class="mention-badge mention-MB">MB · Muito Bom</span></span></li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <!-- VIEW 2: EXAM WORKSPACE -->
+    <section id="exam-view" class="view-section" aria-label="Caderno de Questões">
+      <div class="exam-status-bar">
+        <div class="exam-meta-row">
+          <div class="meta-stat">
+            <span class="meta-stat-label">Estudante</span>
+            <span class="meta-stat-value" id="exam-student-display">—</span>
+          </div>
+          <div class="meta-stat">
+            <span class="meta-stat-label">Turma</span>
+            <span class="meta-stat-value" id="exam-turma-display">—</span>
+          </div>
+          <div class="meta-stat">
+            <span class="meta-stat-label">Progresso</span>
+            <span class="meta-stat-value" id="exam-progress-display">0 / 100</span>
+          </div>
+          <div class="meta-stat">
+            <span class="meta-stat-label">Tempo Decorrido</span>
+            <span class="meta-stat-value" id="exam-timer-display">00:00:00</span>
+          </div>
+        </div>
+        <div>
+          <button type="button" class="btn btn-secondary" onclick="scrollToNextUnanswered()">
+            Próxima em branco
+          </button>
+        </div>
+        <div class="progress-track" style="flex-basis: 100%;">
+          <div class="progress-fill" id="exam-progress-bar"></div>
+        </div>
+      </div>
+
+      <div class="exam-filter-bar">
+        <div class="filter-pills">
+          <button type="button" class="filter-tab active" id="tab-all" onclick="setQuestionFilter('all')">
+            Exibir Todas (100)
+          </button>
+          <button type="button" class="filter-tab" id="tab-unanswered" onclick="setQuestionFilter('unanswered')">
+            Apenas Pendentes (<span id="pending-count-badge">100</span>)
+          </button>
+        </div>
+        <span class="meta-stat-label" id="filter-hint">Ordem dinâmica individualizada · Sem numeração estática</span>
+      </div>
+
+      <!-- Guaranteed Question Container -->
+      <div id="questions-container"></div>
+
+      <div class="exam-submit-panel">
+        <div>
+          <p class="section-kicker" style="margin-bottom: var(--space-xs);">Conclusão do Simulado</p>
+          <p style="margin: 0; font-size: 0.92rem; color: var(--on-surface-variant);">
+            Revise suas marcações antes de finalizar. O resultado será encaminhado ao formulário da turma.
+          </p>
+          <p id="submit-warning-msg" class="submit-warning"></p>
+        </div>
+        <div>
+          <button type="button" class="btn btn-primary" id="submit-exam-btn" onclick="handleSubmitExam(this)">
+            Finalizar e Enviar Avaliação
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: INDIVIDUAL RESULT -->
+    <section id="result-view" class="view-section" aria-labelledby="result-heading">
+      <div class="section-head">
+        <div>
+          <p class="section-kicker">Boletim Diagnóstico Individual</p>
+          <h2 id="result-heading">Desempenho Consolidado</h2>
+        </div>
+        <button type="button" class="btn btn-secondary" onclick="returnToLogin()">
+          Retornar ao Início
+        </button>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="figure-card">
+          <p class="figure-label">Estudante · Turma</p>
+          <p class="figure-value" id="res-name" style="font-size: 1.25rem;">—</p>
+          <p class="figure-delta" id="res-turma">—</p>
+        </div>
+        <div class="figure-card">
+          <p class="figure-label">Aproveitamento</p>
+          <p class="figure-value" id="res-score">0%</p>
+          <p class="figure-delta" id="res-hits">0 de 100 acertos</p>
+        </div>
+        <div class="figure-card">
+          <p class="figure-label">Menção ETEC</p>
+          <p class="figure-value" id="res-mention">—</p>
+          <p class="figure-delta" id="res-mention-label">—</p>
+        </div>
+        <div class="figure-card">
+          <p class="figure-label">Tempo Total</p>
+          <p class="figure-value" id="res-duration">00:00:00</p>
+          <p class="figure-delta" id="res-timestamps">—</p>
+        </div>
+      </div>
+
+      <div class="figure-card" style="margin-bottom: var(--space-lg);">
+        <p class="section-kicker">Mapeamento por Eixo Gramatical</p>
+        <div class="section-head">
+          <h2>Desempenho por Tópico</h2>
+        </div>
+        <div class="topic-bars" id="result-topic-bars"></div>
+      </div>
+
+      <div class="figure-card">
+        <p class="section-kicker">Plano de Estudos</p>
+        <div class="section-head">
+          <h2>Tópicos Prioritários para Reforço</h2>
+        </div>
+        <p id="res-reinforcement" style="margin: 0; font-size: 0.98rem;"></p>
+      </div>
+    </section>
+
+  </main>
+
+  <api-shim></api-shim>
+  <script>
+    /* =========================================================================
+       1. PASSAGENS LONGAS (~300 PALAVRAS CADA) - TEXTOS DE BASE
+       ========================================================================= */
+    const PASSAGES = {
+      txt_variacao: {
+        title: `Texto I — O mito da língua homogênea e os registros de uso`,
+        source: `Texto inédito elaborado a partir de matrizes sociolinguísticas (Bagno; Possenti; BNCC).`,
+        body: `A concepção de que existe uma única forma legítima de falar e escrever o português brasileiro repousa sobre um equívoco histórico e científico amplamente refutado pela Linguística contemporânea. Toda língua natural constitui um sistema heterogêneo, dinâmico e atravessado por fatores geográficos, geracionais, socioeconômicos e situacionais. No Brasil, a distância entre a chamada norma-padrão — codificada pelas gramáticas normativas com base em usos literários oitocentistas — e as variedades cultas urbanas efetivamente praticadas hoje revela que a mudança linguística não representa degradação, mas vitalidade comunicativa.
+
+Quando um falante alterna entre construções como “a gente vai assistir ao filme” e “nós vamos ver o filme”, ou emprega o pronome “você” combinado a formas verbais de terceira pessoa, ele não comete um erro cognitivo, mas opera escolhas estilísticas adequadas ao grau de monitoramento da situação. O preconceito linguístico emerge justamente quando critérios sociais de prestígio econômico são disfarçados de juízos estritamente gramaticais: estigmatiza-se o rotacismo em “pranta” ou a ausência de concordância redundante em “os livro”, não por deficiência estrutural da variedade popular, que segue regras fonológicas e morfossintáticas regulares, mas pelo lugar social atribuído a quem a enuncia.
+
+Contudo, combater a intolerância linguística não significa negar aos estudantes do Ensino Médio o domínio da norma urbana de prestígio e das convenções da escrita formal. Pelo contrário: apropriar-se dessas convenções em relatórios técnicos, requerimentos e exames vestibulares amplia a cidadania e a capacidade de intervenção discursiva. A competência comunicativa plena consiste, portanto, em transitar com consciência crítica entre registros distintos, compreendendo que a adequação contextual supera a dicotomia simplista entre “certo” e “errado”.`
+      },
+      txt_bakhtin: {
+        title: `Texto II — A palavra como ponte dialógica na enunciação`,
+        source: `Texto inédito fundamentado em estudos enunciativos (Bakhtin; Volóchinov; Identidade Saraiva).`,
+        body: `Ao contrário do que propõem abordagens estritamente estruturalistas que isolam o vocábulo no interior do dicionário, a teoria enunciativa compreende a palavra como uma ponte lançada entre o locutor e o seu interlocutor. Nessa perspectiva, nenhum enunciado nasce em um vácuo social: toda fala ou texto escrito responde a discursos anteriores, antecipa objeções possíveis e carrega marcas da posição valorativa de quem enuncia. A significação linguística não reside, pois, exclusivamente na morfologia isolada das unidades léxicas, mas se concretiza na arena viva da interação verbal.
+
+Considere-se o funcionamento das redes digitais e dos gêneros contemporâneos de circulação rápida. Uma mesma expressão abreviada ou o emprego intencional de caixa alta pode ser interpretado como intimidade lúdica entre colegas de turma ou como agressividade descortês em um ambiente corporativo. O sentido efetivo decorre do horizonte social compartilhado e da avaliação implícita inscrita no gênero discursivo escolhido. Além disso, os recursos gramaticais atuam como pistas materiais dessa negociação: a seleção de um verbo modalizador como “dever” ou “poder”, a preferência pela voz passiva sintética ou o deslocamento de um advérbio avaliativo modulam o grau de comprometimento e autoridade do enunciador diante do que afirma.
+
+Assim, analisar a língua em uso exige superar a classificação mecânica de termos descontextualizados. Cabe ao leitor crítico investigar por que determinadas escolhas lexicais, sintáticas e entonacionais foram mobilizadas em detrimento de outras igualmente disponíveis no sistema. Ao desvendar esses mecanismos, o estudante deixa de ser mero repetidor de nomenclaturas e assume o papel de analista consciente dos efeitos de sentido que organizam a vida pública e cultural.`
+      },
+      txt_machado: {
+        title: `Texto III — Ironia, ponto de vista e ambiguidade narrativa`,
+        source: `Texto ensaístico inspirado na técnica narrativa de Machado de Assis (Memórias Póstumas de Brás Cubas).`,
+        body: `Na tradição realista brasileira, poucos recursos se mostram tão sofisticados quanto a dissociação entre o que o narrador afirma explicitamente e o que o leitor atento é induzido a inferir pelas frestas do discurso. Em vez de denunciar diretamente a hipocrisia moral de seus personagens, a prosa irônica prefere vestir a máscara da complacência, convertendo vícios sociais em virtudes orçamentárias e justificando violências cotidianas por meio de raciocínios aparentemente equilibrados. Trata-se de uma estratégia de modalização enganosa: a sintaxe elegante e o vocabulário jurídico ou contábil simulam imparcialidade enquanto expõem a contradição ética subjacente.
+
+Observa-se frequentemente o emprego do discurso indireto livre e de orações concessivas como instrumentos de corrosão argumentativa. Ao declarar que certo indivíduo era “ferozmente honrado”, embora mandasse escravizados ao calabouço “porque o negócio assim o requeria”, o enunciador justapõe um advérbio de intensidade brutal a um adjetivo de nobreza moral. Esse choque semântico impede a leitura ingênua e convoca o leitor a participar da construção do sentido, desconfiando da literalidade das justificativas apresentadas. A concessão sintática, introduzida por conectivos como “posto que” ou “ainda que”, finge atenuar a culpa, mas acaba por amplificar o cinismo do argumento.
+
+Portanto, a eficácia literária desse procedimento não depende de adjetivação exagerada, mas do cálculo preciso da ordem das palavras, da pontuação pausada e da ambiguidade calculada. Quando a ironia atinge seu ápice, a própria norma culta, associada historicamente ao prestígio das elites letradas, volta-se contra o discurso elitista que pretende legitimar a desigualdade, transformando a gramática em bisturi crítico da sociedade.`
+      },
+      txt_tecnologia: {
+        title: `Texto IV — Hiperconectividade, desinformação e curadoria linguística`,
+        source: `Texto adaptado de análises sobre letramento midiático e circulação digital (padrão ENEM/FUVEST).`,
+        body: `A arquitetura das plataformas digitais contemporâneas reconfigurou profundamente as condições de produção, circulação e recepção dos textos públicos. Se, durante séculos, o acesso à imprensa exigia mediação editorial e filtragem institucional, hoje qualquer usuário conectado dispõe de instrumentos capazes de alcançar audiências equivalentes às de grandes veículos jornalísticos em questão de segundos. Esse deslocamento democratizou a expressão de grupos historicamente silenciados, mas também potencializou a disseminação veloz de mensagens apócrifas, notícias fraudulentas e discursos manipulatórios baseados em apelos emocionais imediatos.
+
+Do ponto de vista linguístico, os conteúdos enganosos raramente se sustentam por acaso: eles exploram sistematicamente gatilhos de urgência, imperativos categóricos, hipérboles alarmistas e ambiguidades referenciais que dificultam a verificação da fonte original. A ausência proposital de modalizadores epistêmicos — expressões como “segundo dados preliminares” ou “há indícios de que” — converte hipóteses frágeis em certezas absolutas, induzindo o compartilhamento irrefletido. Simultaneamente, o fenômeno do phishing e das falsificações digitais apropria-se da aparência formal da linguagem bancária e administrativa para simular credibilidade e capturar dados pessoais de usuários desatentos.
+
+Diante desse cenário, a leitura proficiente no século XXI demanda competências que articulam análise gramatical e checagem pragmática. Reconhecer quem fala, a partir de que lugar institucional o texto se legitima, quais conectivos estabelecem relações falsas de causalidade e como o vocabulário tenta conduzir o leitor a conclusões precipitadas tornou-se exigência básica de autodefesa informacional. Mais do que memorizar regras abstratas, dominar a arquitetura da língua significa desenvolver imunidade crítica contra a manipulação discursiva.`
+      },
+      txt_amazonia: {
+        title: `Texto V — Línguas brasileiras, memória lexical e patrimônio cultural`,
+        source: `Texto elaborado a partir de estudos sobre o nheengatu e a diversidade linguística amazônica.`,
+        body: `Embora o imaginário escolar costume retratar o Brasil como um país monolíngue, o território nacional abriga centenas de línguas indígenas, além de línguas de sinais, falares quilombolas e idiomas de imigração. Na região do Alto Rio Negro, no Amazonas, o município de São Gabriel da Cachoeira protagonizou um marco histórico ao cooficializar, ao lado do português, três línguas indígenas amplamente faladas por suas comunidades: o nheengatu, o baníua e o tucano. Essa iniciativa jurídica reconhece que a língua não constitui mero código instrumental substituível, mas arquivo vivo de saberes ecológicos, mitologias e relações comunitárias milenares.
+
+O próprio português falado no Brasil guarda cicatrizes e tesouros desse contato histórico. Vocábulos cotidianos como “abacaxi”, “pipoca”, “peteca”, “capim”, “carioca” e “caatinga” provêm de matrizes tupi-guarani, integrando-se ao léxico nacional por meio de adaptações fonológicas e morfológicas contínuas. Da mesma maneira, centenas de termos de origem africana banto e iorubá — como “cafuné”, “quilombo”, “moleque”, “dendê” e “fubá” — enriqueceram o repertório expressivo e afetivo da língua portuguesa, alterando inclusive padrões de acentuação e estrutura silábica que o idioma trazia da Península Ibérica.
+
+Preservar a pluralidade linguística contemporânea, inclusive por meio de projetos de inclusão digital em aldeias guaranis e amazônicas que utilizam a internet para registrar narrativas orais, representa um compromisso ético com a memória coletiva. Cada idioma que desaparece leva consigo classificações botânicas únicas, formas singulares de conceber o tempo e metáforas irrepetíveis da experiência humana. Valorizar essa riqueza significa compreender o português brasileiro como organismo mestiço, plural e em permanente diálogo com as vozes ancestrais do território.`
+      },
+      txt_trabalho: {
+        title: `Texto VI — Gêneros do mundo do trabalho e credibilidade profissional`,
+        source: `Texto pedagógico alinhado ao currículo técnico ETEC (Projeto Biodata e Videocurrículo).`,
+        body: `O ingresso de jovens estudantes do Ensino Médio Técnico no mundo do trabalho contemporâneo envolve o domínio de gêneros discursivos híbridos que combinam concisão verbal, organização visual e precisão normativa. Seja na redação de uma biodata acadêmica, na estruturação de um perfil profissional em plataformas corporativas ou na roteirização de um videocurrículo, o candidato constrói sua imagem pública por meio das escolhas linguísticas que realiza. Nesse contexto, a adequação à norma-padrão escrita e à clareza articulatória na oralidade monitorada não configura mero capricho elitista, mas indicador prático de atenção, rigor técnico e confiabilidade.
+
+Um erro recorrente em portfólios juvenis reside na confusão entre a espontaneidade das conversas instantâneas e a objetividade exigida pelos processos seletivos. O emprego de abreviações informais, desvios de acentuação gráfica em palavras técnicas, falhas de concordância verbal diante de sujeitos compostos pospostos e o uso indiscriminado de clichês vazios — como “proativo e dinâmico” sem evidências concretas — comprometem a força persuasiva da candidatura. Por outro lado, o excesso de rebuscamento artificial, repleto de gerundismos e expressões burocráticas obsoletas, distancia o texto da fluidez contemporânea valorizada pelas equipes de seleção.
+
+O equilíbrio produtivo nasce do planejamento textual consciente: verbos de ação precisos para descrever projetos desenvolvidos na escola técnica, conectivos lógicos que evidenciem causa e resultado, pontuação que garanta ritmo limpo na leitura em voz alta e revisão ortográfica rigorosa. Dominar esses mecanismos confere ao estudante autonomia para apresentar suas competências reais com segurança e autenticidade.`
+      },
+      txt_arte: {
+        title: `Texto VII — Ruptura modernista, oralidade e reinvenção estética`,
+        source: `Texto crítico sobre as vanguardas brasileiras do século XX e a linguagem poética.`,
+        body: `Quando os artistas e escritores modernistas brasileiros irromperam no cenário cultural do início do século XX, sua revolta estética direcionava-se tanto contra os cânones acadêmicos importados da Europa quanto contra o purismo gramatical parnasiano que aprisionava a criação literária. Ao reivindicar o “erro” criativo, a sintaxe coloquial das ruas e a incorporação de ritmos populares na poesia, o movimento não defendia a ignorância da língua, mas a emancipação expressiva da variedade brasileira diante da rigidez lusitanizante. Versos livres, frases nominais curtas e metáforas inusitadas substituíram a métrica rígida e o vocabulário artificialmente arcaico.
+
+Essa guinada linguística produziu um efeito duradouro na literatura nacional e ecoa hoje nas manifestações culturais periféricas, como o slam, o rap e o cordel urbano. Nesses espaços, a exploração sonora da língua — por meio de aliterações incisivas, assonâncias musicais e paronomásias provocativas — alia-se à densidade argumentativa da denúncia social. A metáfora deixa de ser ornamento elitista para converter-se em ferramenta de resistência e ressignificação da realidade vivida nas metrópoles.
+
+Compreender a trajetória que liga o verso modernista à poesia falada contemporânea permite perceber que a estilística não se limita a uma lista estéril de nomes gregos. Figuras como a antítese, o paradoxo, a metonímia e a hipérbole nascem da necessidade humana de tensionar os limites do sentido literal quando a linguagem cotidiana parece insuficiente para nomear conflitos profundos. Em toda época de ruptura, reinventar a sintaxe e o léxico equivale a reivindicar o direito de narrar o mundo com a própria voz.`
+      },
+      txt_ecologia: {
+        title: `Texto VIII — Ecologia urbana, retórica ambiental e responsabilidade pública`,
+        source: `Texto adaptado de reportagens analíticas sobre crise ambiental urbana e discurso público.`,
+        body: `O debate sobre a crise ecológica costuma concentrar-se nas grandes florestas tropicais e nos biomas distantes dos centros metropolitanos, relegando a segundo plano o colapso socioambiental que ocorre diariamente no interior das cidades. A impermeabilização do solo, a canalização predatória de córregos, o descarte irregular de resíduos industriais e a supressão de áreas verdes produzem ilhas de calor e enchentes recorrentes que atingem, de modo desigual, as populações periféricas. Artistas e urbanistas contemporâneos que reutilizam sobras de madeira recolhidas em caçambas para erguer instalações em parques públicos definem esses detritos como “vísceras expostas” da metrópole, evocando pela metáfora orgânica a urgência de repensar o metabolismo urbano.
+
+No plano do discurso institucional e publicitário, entretanto, observa-se com frequência a apropriação superficial do vocabulário sustentável. Campanhas corporativas empregam termos como “ecológico”, “neutro” e “verde” como escudos retóricos destinados a neutralizar críticas, fenômeno conhecido como greenwashing. Analisar criticamente tais mensagens exige atenção redobrada às escolhas morfossintáticas: o uso de sujeitos indeterminados ou da voz passiva sem agente (“resíduos são destinados adequadamente”) oculta responsabilidades concretas, enquanto pressupostos e adjetivos valorativos sugerem compromissos que os dados técnicos não comprovam.
+
+Além disso, a efetividade das políticas públicas de prevenção a desastres naturais depende da clareza administrativa e da execução orçamentária transparente. Quando verbas destinadas à contenção de encostas permanecem ociosas, o custo posterior de remediação multiplica-se exponencialmente. Ler relatórios ambientais com rigor linguístico e quantitativo constitui, assim, um exercício indispensável de fiscalização cidadã.`
+      }
+    };
+
+    /* =========================================================================
+       2. GERADOR DE ÁRVORES MORFOLÓGICAS EM SVG (SEM CORES HEX INLINE)
+       ========================================================================= */
+    function renderMorphTreeSVG(tree) {
+      /* tree: { word, nodes: [ { label, role, type } ] } */
+      const n = tree.nodes.length;
+      const colW = 118;
+      const svgW = Math.max(460, n * colW + 24);
+      const svgH = 195;
+      const rootX = svgW / 2;
+      const rootY = 30;
+      const midY = 92;
+      const leafY = 148;
+
+      let lines = '';
+      let boxes = '';
+
+      tree.nodes.forEach(function(node, idx) {
+        const cx = 12 + idx * colW + colW / 2;
+        lines += `<line x1="${rootX}" y1="${rootY + 18}" x2="${cx}" y2="${midY - 14}" stroke="var(--outline)" stroke-width="1.5" />`;
+        lines += `<line x1="${cx}" y1="${midY + 14}" x2="${cx}" y2="${leafY - 16}" stroke="var(--outline-variant)" stroke-width="1.5" stroke-dasharray="3,2" />`;
+
+        let fillToken = 'var(--surface-container-low)';
+        let strokeToken = 'var(--primary)';
+        let textToken = 'var(--primary)';
+        if (node.type === 'radical') {
+          fillToken = 'var(--primary-container)';
+          strokeToken = 'var(--primary)';
+          textToken = 'var(--primary)';
+        } else if (node.type === 'afixo') {
+          fillToken = 'var(--tertiary-container)';
+          strokeToken = 'var(--tertiary)';
+          textToken = 'var(--tertiary)';
+        } else if (node.type === 'vt' || node.type === 'lig') {
+          fillToken = 'var(--secondary-container)';
+          strokeToken = 'var(--secondary)';
+          textToken = 'var(--secondary)';
+        } else if (node.type === 'des') {
+          fillToken = 'var(--surface-container)';
+          strokeToken = 'var(--outline)';
+          textToken = 'var(--on-surface)';
+        }
+
+        boxes += `
+          <rect x="${cx - 52}" y="${midY - 14}" width="104" height="28" rx="2" fill="${fillToken}" stroke="${strokeToken}" stroke-width="1.5" />
+          <text x="${cx}" y="${midY + 4}" text-anchor="middle" font-family="var(--font-mono)" font-size="13" font-weight="600" fill="${textToken}">${node.label}</text>
+          <rect x="${cx - 54}" y="${leafY - 16}" width="108" height="34" rx="2" fill="var(--surface-container-low)" stroke="var(--outline-variant)" stroke-width="1" />
+          <text x="${cx}" y="${leafY + 5}" text-anchor="middle" font-family="var(--font-label)" font-size="10.5" font-weight="600" fill="var(--on-surface-variant)">${node.role}</text>
+        `;
+      });
+
+      return `
+        <div class="morph-tree-wrap">
+          <div class="morph-tree-caption">Árvore de Decomposição Morfológica — Vocábulo em Análise</div>
+          <svg viewBox="0 0 ${svgW} ${svgH}" width="100%" style="min-width: ${Math.min(svgW, 520)}px; max-height: 205px; display: block;" role="img" aria-label="Árvore morfológica da palavra ${tree.word}">
+            <rect x="${rootX - 115}" y="${rootY - 16}" width="230" height="34" rx="2" fill="var(--primary)" />
+            <text x="${rootX}" y="${rootY + 6}" text-anchor="middle" font-family="var(--font-headline)" font-size="15" font-weight="700" fill="var(--on-primary)">${tree.word}</text>
+            ${lines}
+            ${boxes}
+          </svg>
+        </div>
+      `;
+    }
+
+    /* =========================================================================
+       3. BANCO INTEGRAL DE 100 QUESTÕES RIGOROSAS (SEM NUMERAÇÃO ESTÁTICA)
+       ========================================================================= */
+    const QUESTION_BANK = [
+      /* --- BLOCO A: ESTRUTURA E MORFOLOGIA COM ÁRVORES DETALHADAS (15 questões) --- */
+      {
+        id: `q001`,
+        topic: `Estrutura e Morfologia`,
+        source: `Padrão FUVEST / ETEC`,
+        tree: {
+          word: `INCONSTITUCIONALMENTE`,
+          nodes: [
+            { label: `in-`, role: `Prefixo (negação)`, type: `afixo` },
+            { label: `constitucion-`, role: `Radical (base)`, type: `radical` },
+            { label: `-al-`, role: `Sufixo adjetival`, type: `afixo` },
+            { label: `-mente`, role: `Sufixo adverbial`, type: `afixo` }
+          ]
+        },
+        prompt: `Analisando a árvore de decomposição morfológica do advérbio “inconstitucionalmente”, verifica-se que o segmento “constitucion-” representa uma variante alomórfica do radical de “constituição”. Assinale a alternativa correta sobre a função e a natureza dos morfemas destacados:`,
+        options: [
+          { text: `O prefixo “in-” altera a classe gramatical da base, convertendo um adjetivo em advérbio de modo.`, isCorrect: false },
+          { text: `O morfema “-al-” atua como sufixo derivacional formador de adjetivo, servindo de base feminina implícita para a anexação do sufixo adverbial “-mente”.`, isCorrect: true },
+          { text: `O elemento “-mente” classifica-se como desinência nominal de gênero e número aplicada aos advérbios eruditos.`, isCorrect: false },
+          { text: `A sequência “-cion-” funciona como consoante e vogal de ligação desprovidas de vínculo etimológico com o radical latino.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q002`,
+        topic: `Estrutura e Morfologia`,
+        source: `Padrão ITA / Provão Paulista`,
+        tree: {
+          word: `CANTÁVAMOS`,
+          nodes: [
+            { label: `cant-`, role: `Radical verbal`, type: `radical` },
+            { label: `-á-`, role: `Vogal Temática (1ª)`, type: `vt` },
+            { label: `-va-`, role: `DMT (Pret. Imperf.)`, type: `des` },
+            { label: `-mos`, role: `DNP (1ª p. plural)`, type: `des` }
+          ]
+        },
+        prompt: `Observe a decomposição estrutural da forma verbal “cantávamos”. Considerando a distinção rigorosa entre tema, desinência modo-temporal (DMT) e desinência número-pessoal (DNP), assinale a afirmação exata:`,
+        options: [
+          { text: `O tema verbal é constituído exclusivamente por “cant-”, pois a vogal “-á-” desempenha papel de vogal de ligação eufônica.`, isCorrect: false },
+          { text: `A junção do radical “cant-” à vogal temática “-á-” forma o tema “cantá-”, ao qual se aglutinam a DMT “-va-” (pretérito imperfeito do indicativo) e a DNP “-mos”.`, isCorrect: true },
+          { text: `O segmento “-va-” indica simultaneamente modo subjuntivo e segunda pessoa do plural, sendo um morfema cumulativo.`, isCorrect: false },
+          { text: `A presença do acento agudo em “-á-” transforma a vogal temática em sufixo derivacional intensificador.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q003`,
+        topic: `Estrutura e Morfologia`,
+        source: `Padrão Provão Paulista`,
+        tree: {
+          word: `CAFETEIRA`,
+          nodes: [
+            { label: `café-`, role: `Radical nominal`, type: `radical` },
+            { label: `-t-`, role: `Consoante de ligação`, type: `lig` },
+            { label: `-eir-`, role: `Sufixo nominal`, type: `afixo` },
+            { label: `-a`, role: `Desinência de gênero`, type: `des` }
+          ]
+        },
+        prompt: `Na segmentação morfológica do substantivo “cafeteira”, o fonema representado por “-t-” não pertence ao radical primitivo “café” nem integra originalmente o sufixo “-eir-”. Qual é a justificativa morfofonológica correta para esse elemento?`,
+        options: [
+          { text: `Trata-se de um infixo gramatical responsável por atribuir valor diminutivo ao recipiente doméstico.`, isCorrect: false },
+          { text: `Constitui uma consoante de ligação inserida por razões eufônicas para evitar o hiato entre a vogal final do radical e o início do sufixo.`, isCorrect: true },
+          { text: `É uma desinência verbal remanescente do particípio latino incorporado aos substantivos instrumentais.`, isCorrect: false },
+          { text: `Representa a vogal temática atemática convertida em consoante oclusiva diante de sufixos iniciados por vogal anterior.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q004`,
+        topic: `Estrutura e Morfologia`,
+        source: `Padrão FUVEST`,
+        tree: {
+          word: `GASÔMETRO`,
+          nodes: [
+            { label: `gas-`, role: `Radical 1 (base)`, type: `radical` },
+            { label: `-ô-`, role: `Vogal de ligação`, type: `lig` },
+            { label: `-metr-`, role: `Radical 2 (medida)`, type: `radical` },
+            { label: `-o`, role: `Vogal temática nom.`, type: `vt` }
+          ]
+        },
+        prompt: `Examinando a árvore morfológica de “gasômetro”, identifique a alternativa que distingue corretamente a função dos dois morfemas vocálicos presentes na palavra (“-ô-” e “-o”):`,
+        options: [
+          { text: `Ambos são vogais temáticas nominais, uma vez que o vocábulo possui dois radicais autônomos justapostos.`, isCorrect: false },
+          { text: `O primeiro “-ô-” funciona como vogal de ligação inter-radical na composição erudita, ao passo que o “-o” final atua como vogal temática nominal.`, isCorrect: true },
+          { text: `O primeiro “-ô-” é desinência de gênero masculino, e o “-o” final é sufixo indicador de grau aumentativo.`, isCorrect: false },
+          { text: `O segmento “-ô-” integra o radical grego “metron”, não possuindo estatuto de elemento de ligação.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q005`,
+        topic: `Estrutura e Morfologia`,
+        source: `Padrão ITA`,
+        tree: {
+          word: `MENINAS`,
+          nodes: [
+            { label: `menin-`, role: `Radical nominal`, type: `radical` },
+            { label: `-a`, role: `Desinência de gênero`, type: `des` },
+            { label: `-s`, role: `Desinência de número`, type: `des` }
+          ]
+        },
+        prompt: `Com base na morfologia nominal de “meninas” em contraste com vocábulos como “tribo” ou “caderno”, assinale a alternativa que diferencia com precisão a “desinência nominal de gênero” da “vogal temática nominal”:`,
+        options: [
+          { text: `Em “meninas”, o “-a” é vogal temática, pois todo substantivo terminado em “a” ou “o” é desprovido de flexão de gênero.`, isCorrect: false },
+          { text: `Em “meninas”, o “-a” é desinência de gênero porque se opõe diretamente ao masculino “menino”, ao passo que em “caderno” o “-o” é vogal temática nominal sem oposição sexual ou de gênero.`, isCorrect: true },
+          { text: `O morfema “-s” em “meninas” classifica-se como sufixo derivacional coletivo, equivalente a “-ada” em “meninada”.`, isCorrect: false },
+          { text: `A forma singular “menina” não possui radical identificável, apresentando apenas tema e sufixo flexional.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q006`,
+        topic: `Estrutura e Morfologia`,
+        source: `Padrão Provão Paulista`,
+        tree: {
+          word: `RECONSTRUÍAMOS`,
+          nodes: [
+            { label: `re-`, role: `Prefixo (repetição)`, type: `afixo` },
+            { label: `constru-`, role: `Radical (3ª conj.)`, type: `radical` },
+            { label: `-í-`, role: `Vogal Temática (3ª)`, type: `vt` },
+            { label: `-a-`, role: `DMT (Pret. Imperf.)`, type: `des` },
+            { label: `-mos`, role: `DNP (1ª p. plural)`, type: `des` }
+          ]
+        },
+        prompt: `Na árvore de “reconstruíamos”, observe a sucessão dos morfemas flexionais após a vogal temática “-í-”. A análise morfológica exata desse vocábulo confirma que:`,
+        options: [
+          { text: `O prefixo “re-” altera a conjugação do verbo, transferindo-o da terceira para a segunda conjugação.`, isCorrect: false },
+          { text: `A desinência modo-temporal característica da 2ª e 3ª conjugações no pretérito imperfeito do indicativo é “-a-” (variante de “-ia-” absorvida pela vogal temática), e “-mos” marca a 1ª pessoa do plural.`, isCorrect: true },
+          { text: `O segmento “-íamos” é um sufixo indivisível que expressa futuro do pretérito do indicativo.`, isCorrect: false },
+          { text: `A vogal “-í-” constitui mera vogal de ligação entre o radical “constru-” e a desinência “-amos”.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q007`,
+        topic: `Estrutura e Morfologia`,
+        source: `Padrão ETEC / FUVEST`,
+        tree: {
+          word: `ENTARDECER`,
+          nodes: [
+            { label: `en-`, role: `Prefixo parassint.`, type: `afixo` },
+            { label: `tard-`, role: `Radical (de tarde)`, type: `radical` },
+            { label: `-ec-`, role: `Sufixo incoativo`, type: `afixo` },
+            { label: `-e-`, role: `Vogal Temática (2ª)`, type: `vt` },
+            { label: `-r`, role: `Desinência infinitivo`, type: `des` }
+          ]
+        },
+        prompt: `A partir da decomposição do verbo “entardecer”, avalie o papel do morfema “-ec-” e da estrutura prefixo-sufixal no vocábulo:`,
+        options: [
+          { text: `O segmento “-ec-” integra o radical “tarde”, não exercendo função aspectual ou derivacional.`, isCorrect: false },
+          { text: `O sufixo verbal “-ec-” confere valor incoativo (início ou transição de estado), e sua anexação simultânea ao prefixo “en-” sobre o radical “tard-” caracteriza parassíntese.`, isCorrect: true },
+          { text: `O morfema “-r” final é vogal temática nominal responsável pela substantivação obrigatória do verbo.`, isCorrect: false },
+          { text: `A retirada do prefixo “en-” mantém uma forma verbal autônoma de uso corrente na norma-padrão (“tardecer”).`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q008`,
+        topic: `Estrutura e Morfologia`,
+        source: `Padrão ITA`,
+        tree: {
+          word: `PAULISTANO`,
+          nodes: [
+            { label: `paul-`, role: `Radical (Paulo)`, type: `radical` },
+            { label: `-ist-`, role: `Sufixo gentílico`, type: `afixo` },
+            { label: `-an-`, role: `Sufixo pátrio`, type: `afixo` },
+            { label: `-o`, role: `Desinência de gênero`, type: `des` }
+          ]
+        },
+        prompt: `Considerando a estrutura do adjetivo pátrio “paulistano” (natural da cidade de São Paulo), assinale a alternativa que interpreta corretamente seus constituintes:`,
+        options: [
+          { text: `Há acúmulo de dois sufixos derivacionais (“-ist-” e “-an-”) sobre o radical “paul-”, diferenciando o gentílico municipal de “paulista”.`, isCorrect: true },
+          { text: `A letra “t” em “-ist-” é consoante de ligação sem relação com sufixos nominais da língua portuguesa.`, isCorrect: false },
+          { text: `O elemento “-o” final atua como vogal temática atemática, impedindo a flexão para o feminino “paulistana”.`, isCorrect: false },
+          { text: `O vocábulo é formado por aglutinação dos radicais “Paulo” e “ano”.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q009`,
+        topic: `Estrutura e Morfologia`,
+        source: `Padrão Provão Paulista`,
+        tree: {
+          word: `PEDREIRA`,
+          nodes: [
+            { label: `pedr-`, role: `Radical nominal`, type: `radical` },
+            { label: `-eir-`, role: `Sufixo (lugar/ofício)`, type: `afixo` },
+            { label: `-a`, role: `Desinência / Marca fem.`, type: `des` }
+          ]
+        },
+        prompt: `Comparando o substantivo derivado “pedreira” à sua base “pedra”, identifique a explicação morfológica rigorosa para o desaparecimento do “-a” de “pedra” antes da junção do sufixo “-eir-”:`,
+        options: [
+          { text: `Em “pedra”, o “-a” final é desinência de gênero feminino, que se mantém obrigatoriamente nas palavras derivadas antes do sufixo.`, isCorrect: false },
+          { text: `Em “pedra”, o “-a” final é vogal temática nominal atônica, a qual é regularmente suprimida quando um sufixo iniciado por vogal se acopla diretamente ao radical “pedr-”.`, isCorrect: true },
+          { text: `O vocábulo “pedra” é atemático, razão pela qual o sufixo “-eira” é classificado como prefixo posposto.`, isCorrect: false },
+          { text: `O segmento “-dr-” constitui consoante de ligação entre a raiz “pe-” e o sufixo “-eira”.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q010`,
+        topic: `Estrutura e Morfologia`,
+        source: `Padrão FUVEST / ITA`,
+        tree: {
+          word: `PARTÍSSEMOS`,
+          nodes: [
+            { label: `part-`, role: `Radical verbal`, type: `radical` },
+            { label: `-í-`, role: `Vogal Temática (3ª)`, type: `vt` },
+            { label: `-sse-`, role: `DMT (Pret. Imp. Subj.)`, type: `des` },
+            { label: `-mos`, role: `DNP (1ª p. plural)`, type: `des` }
+          ]
+        },
+        prompt: `Na análise da forma verbal “partíssemos”, observe o papel desempenhado pela desinência “-sse-” e pela vogal temática “-í-”. Assinale a opção correta:`,
+        options: [
+          { text: `O morfema “-sse-” é a desinência modo-temporal exclusiva do pretérito imperfeito do subjuntivo nas três conjugações regulares.`, isCorrect: true },
+          { text: `A vogal “-í-” é desinência de número singular, neutralizada pela presença de “-mos”.`, isCorrect: false },
+          { text: `O radical do verbo é “partí-”, pois não há vogal temática nos verbos da terceira conjugação.`, isCorrect: false },
+          { text: `A forma “partíssemos” pertence ao futuro do subjuntivo e não apresenta desinência modo-temporal.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q011`,
+        topic: `Estrutura e Morfologia`,
+        source: `Padrão ETEC`,
+        tree: {
+          word: `DESLEALDADE`,
+          nodes: [
+            { label: `des-`, role: `Prefixo (negação)`, type: `afixo` },
+            { label: `leal-`, role: `Radical adjetival`, type: `radical` },
+            { label: `-dade`, role: `Sufixo substantivador`, type: `afixo` }
+          ]
+        },
+        prompt: `Observando a árvore de “deslealdade”, assinale a alternativa que demonstra por que o vocábulo NÃO é formado por parassíntese, mas por derivação prefixal e sufixal:`,
+        options: [
+          { text: `Porque o sufixo “-dade” forma verbos da primeira conjugação, enquanto “des-” atua como desinência.`, isCorrect: false },
+          { text: `Porque tanto a forma prefixada (“desleal”) quanto a sufixada (“lealdade”) existem autonomamente na língua sem exigir anexação simultânea dos dois afixos.`, isCorrect: true },
+          { text: `Porque o vocábulo possui dois radicais distintos unidos por vogal de ligação.`, isCorrect: false },
+          { text: `Porque “des-” é uma preposição autônoma que se justapõe ao substantivo abstrato.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q012`,
+        topic: `Estrutura e Morfologia`,
+        source: `Padrão ITA`,
+        tree: {
+          word: `CAFEZAL`,
+          nodes: [
+            { label: `café-`, role: `Radical nominal`, type: `radical` },
+            { label: `-z-`, role: `Consoante de ligação`, type: `lig` },
+            { label: `-al`, role: `Sufixo coletivo`, type: `afixo` }
+          ]
+        },
+        prompt: `Na decomposição de “cafezal”, assim como ocorre em “chaleira” e “pezinho”, verifica-se a presença do elemento “-z-”. Sobre esse constituinte, é rigoroso afirmar que:`,
+        options: [
+          { text: `É um sufixo aumentativo herdado do latim vulgar que se fundiu ao radical de “café”.`, isCorrect: false },
+          { text: `Atua como consoante de ligação motivada pela terminação vocálica tônica de “café”, facilitando a articulação com o sufixo coletivo “-al”.`, isCorrect: true },
+          { text: `É uma desinência nominal de plural aplicada a substantivos oxítonos.`, isCorrect: false },
+          { text: `Classifica-se como prefixo intercalado (infixo) com valor semântico de abundância.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q013`,
+        topic: `Estrutura e Morfologia`,
+        source: `Padrão FUVEST`,
+        tree: {
+          word: `AMÁSSEMOS`,
+          nodes: [
+            { label: `am-`, role: `Radical verbal`, type: `radical` },
+            { label: `-á-`, role: `Vogal Temática (1ª)`, type: `vt` },
+            { label: `-sse-`, role: `DMT (Pret. Imp. Subj.)`, type: `des` },
+            { label: `-mos`, role: `DNP (1ª p. plural)`, type: `des` }
+          ]
+        },
+        prompt: `Considere a forma “amássemos” em contraste com “amaremos”. Em “amaremos”, o morfema modo-temporal “-re-” indica futuro do presente do indicativo. Comparando ambas as estruturas verbais, conclui-se que:`,
+        options: [
+          { text: `Ambas compartilham o mesmo tema (“ama-”), diferenciando-se apenas pela substituição da desinência modo-temporal (“-sse-” vs. “-re-”).`, isCorrect: true },
+          { text: `O vocábulo “amaremos” não possui vogal temática, sendo classificado como verbo anômalo.`, isCorrect: false },
+          { text: `Em “amássemos”, a consoante “m” pertence ao sufixo derivacional e não ao radical.`, isCorrect: false },
+          { text: `A desinência “-mos” muda de valor gramatical entre os dois tempos, passando a indicar singular em “amaremos”.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q014`,
+        topic: `Estrutura e Morfologia`,
+        source: `Padrão Provão Paulista`,
+        tree: {
+          word: `CAPINZAL`,
+          nodes: [
+            { label: `capin-`, role: `Radical (alomorfe)`, type: `radical` },
+            { label: `-z-`, role: `Consoante de ligação`, type: `lig` },
+            { label: `-al`, role: `Sufixo coletivo`, type: `afixo` }
+          ]
+        },
+        prompt: `Em “capinzal” (derivado de “capim”), observa-se uma alteração gráfica e morfológica na fronteira do radical. Assinale a análise correta desse fenômeno:`,
+        options: [
+          { text: `O radical “capim” sofre conversão ortográfica para “capin-” antes da consoante de ligação “-z-” e do sufixo coletivo “-al”.`, isCorrect: true },
+          { text: `A palavra resulta da aglutinação entre “capim” e “sal”, havendo perda fonética de vogal.`, isCorrect: false },
+          { text: `O sufixo “-al” em “capinzal” possui o mesmo valor adjetival de “mortal” e “anual”.`, isCorrect: false },
+          { text: `Trata-se de palavra primitiva atemática proveniente diretamente do português arcaico sem base indígena.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q015`,
+        topic: `Estrutura e Morfologia`,
+        source: `Padrão ITA`,
+        tree: {
+          word: `INUTILIZAR`,
+          nodes: [
+            { label: `in-`, role: `Prefixo negativo`, type: `afixo` },
+            { label: `util-`, role: `Radical adjetival`, type: `radical` },
+            { label: `-iz-`, role: `Sufixo verbalizador`, type: `afixo` },
+            { label: `-a-`, role: `Vogal Temática (1ª)`, type: `vt` },
+            { label: `-r`, role: `Desinência infinitivo`, type: `des` }
+          ]
+        },
+        prompt: `Analise a cadeia de formação refletida na árvore do verbo “inutilizar”. Qual alternativa descreve corretamente a ordem derivacional e os morfemas presentes?`,
+        options: [
+          { text: `Parte-se de “útil” → “inútil” (prefixação) → “inutilizar” (sufixação verbal com “-izar”), ou de “útil” → “utilizar” → “inutilizar”, apresentando vogal temática “-a-” e desinência de infinitivo “-r”.`, isCorrect: true },
+          { text: `O sufixo “-izar” transforma diretamente o verbo em substantivo abstrato masculino.`, isCorrect: false },
+          { text: `A letra “z” é consoante de ligação inserida entre o radical “inuti-” e a vogal “a”.`, isCorrect: false },
+          { text: `O vocábulo apresenta composição por justaposição de três radicais latinos autônomos.`, isCorrect: false }
+        ]
+      },
+
+      /* --- BLOCO B: FORMAÇÃO DE PALAVRAS (12 questões) --- */
+      {
+        id: `q016`,
+        topic: `Formação de Palavras`,
+        source: `Padrão FUVEST`,
+        prompt: `Considere os vocábulos destacados: “O <strong>combate</strong> à desigualdade exigiu um <strong>embarque</strong> imediato da equipe técnica”. Quanto ao processo de formação de palavras, “combate” e “embarque” exemplificam:`,
+        options: [
+          { text: `Derivação parassintética, pois recebem prefixo e sufixo simultaneamente.`, isCorrect: false },
+          { text: `Derivação regressiva (ou deverbal), pois são substantivos abstratos indicadores de ação formados pela redução da terminação de infinitivo dos verbos “combater” e “embarcar”.`, isCorrect: true },
+          { text: `Derivação imprópria, uma vez que conservam integralmente a forma flexionada do verbo sem perda de fonemas.`, isCorrect: false },
+          { text: `Composição por aglutinação com perda de vogal temática nominal.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q017`,
+        topic: `Formação de Palavras`,
+        source: `Padrão Provão Paulista`,
+        prompt: `No trecho “O <strong>não</strong> da diretoria transformou o projeto em um caso <strong>sem-fim</strong>”, os termos em destaque ilustram, respectivamente, os processos de:`,
+        options: [
+          { text: `Derivação imprópria (conversão de advérbio em substantivo) e composição por justaposição.`, isCorrect: true },
+          { text: `Derivação regressiva e composição por aglutinação.`, isCorrect: false },
+          { text: `Hibridismo e derivação parassintética.`, isCorrect: false },
+          { text: `Abreviação vocabular e neologismo semântico.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q018`,
+        topic: `Formação de Palavras`,
+        source: `Padrão ITA`,
+        prompt: `Assinale a série em que TODAS as palavras são formadas estritamente por composição por aglutinação (com alteração fonética ou perda de elemento na junção dos radicais):`,
+        options: [
+          { text: `Passatempo, girassol, pontapé.`, isCorrect: false },
+          { text: `Planalto, aguardente, pernalta.`, isCorrect: true },
+          { text: `Guarda-chuva, couve-flor, beija-flor.`, isCorrect: false },
+          { text: `Infelizmente, deslealdade, subsolo.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q019`,
+        topic: `Formação de Palavras`,
+        source: `Padrão ENEM / ETEC`,
+        prompt: `Vocábulos contemporâneos como “automóvel” (grego + latim), “burocracia” (francês + grego) e “sambódromo” (banto/português + grego) são classificados pela morfologia histórica como:`,
+        options: [
+          { text: `Derivados regressivos de línguas românicas.`, isCorrect: false },
+          { text: `Hibridismos, pois combinam radicais ou afixos oriundos de línguas diferentes na formação de uma nova unidade lexical.`, isCorrect: true },
+          { text: `Onomatopeias culturais desprovidas de estrutura morfemática.`, isCorrect: false },
+          { text: `Compostos por justaposição que preservam a ortografia estrangeira original sem adaptação.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q020`,
+        topic: `Formação de Palavras`,
+        source: `Padrão FUVEST`,
+        prompt: `Compare os pares “ensurdecer” e “desigualdade”. Por que “ensurdecer” é classificado como derivação parassintética, diferentemente de “desigualdade”?`,
+        options: [
+          { text: `Porque em “ensurdecer” não existem na língua as formas intermediárias “ensurdo” nem “surdecer”, exigindo a anexação simultânea de “en-” e “-ecer” ao radical “surd-”.`, isCorrect: true },
+          { text: `Porque “ensurdecer” possui dois radicais aglutinados, enquanto “desigualdade” possui apenas um radical.`, isCorrect: false },
+          { text: `Porque “desigualdade” não possui sufixo produtivo na língua portuguesa contemporânea.`, isCorrect: false },
+          { text: `Porque apenas verbos da primeira conjugação aceitam derivação prefixal e sufixal não simultânea.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q021`,
+        topic: `Formação de Palavras`,
+        source: `Padrão ENEM`,
+        prompt: `Na linguagem digital e jornalística atual, criações como “tuiteiro”, “deletar”, “printar” e “googlar” exemplificam a vitalidade lexical do português brasileiro por meio de:`,
+        options: [
+          { text: `Arcaísmos morfológicos resgatados do trovadorismo galego-português.`, isCorrect: false },
+          { text: `Neologismos formados pela incorporação de empréstimos estrangeiros adaptados à morfologia derivacional e verbal portuguesa (sufixação em “-ar” / “-eiro”).`, isCorrect: true },
+          { text: `Derivação regressiva a partir de siglas institucionais.`, isCorrect: false },
+          { text: `Composição por justaposição de vocábulos latinos eruditos.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q022`,
+        topic: `Formação de Palavras`,
+        source: `Padrão Provão Paulista`,
+        prompt: `Identifique a alternativa em que os três vocábulos exemplificam, respectivamente: (1) abreviação/redução vocabular, (2) onomatopeia e (3) siglonimização/sigla:`,
+        options: [
+          { text: `Cine, tique-taque, ONU.`, isCorrect: true },
+          { text: `Chuva, planalto, ETEC.`, isCorrect: false },
+          { text: `Moto, girassol, amor.`, isCorrect: false },
+          { text: `Foto, infeliz, pé-de-meia.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q023`,
+        topic: `Formação de Palavras`,
+        source: `Padrão ITA`,
+        prompt: `Em “O <strong>jantar</strong> foi servido pontualmente, mas o <strong>olhar</strong> do anfitrião denunciava cansaço”, os termos em negrito resultam de:`,
+        options: [
+          { text: `Derivação sufixal, pela adição de “-ar” a substantivos abstratos.`, isCorrect: false },
+          { text: `Derivação imprópria (conversão), na qual verbos no infinitivo assumem a função e os determinantes próprios da classe dos substantivos.`, isCorrect: true },
+          { text: `Derivação parassintética sem prefixo explícito.`, isCorrect: false },
+          { text: `Composição por aglutinação com elisão de preposição.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q024`,
+        topic: `Formação de Palavras`,
+        source: `Padrão FUVEST`,
+        prompt: `No verso “A cidade <strong>amanhecia</strong> em tons de aço enquanto a multidão <strong>desaguava</strong> nos terminais”, os dois verbos destacados foram formados, respectivamente, por:`,
+        options: [
+          { text: `Derivação sufixal e composição por aglutinação.`, isCorrect: false },
+          { text: `Derivação parassintética (a + manh(ã) + ecer; des + águ(a) + ar).`, isCorrect: true },
+          { text: `Derivação prefixal e derivação regressiva.`, isCorrect: false },
+          { text: `Hibridismo e derivação imprópria.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q025`,
+        topic: `Formação de Palavras`,
+        source: `Padrão ETEC`,
+        prompt: `Considere o termo “boquiaberto” (boca + aberta) e “vinagre” (vinho + acre). O processo morfológico comum a ambos é:`,
+        options: [
+          { text: `Composição por justaposição, pois não há alteração fônica das bases.`, isCorrect: false },
+          { text: `Composição por aglutinação, caracterizada pela fusão de radicais sob um único acento tônico com alteração ou supressão de fonemas.`, isCorrect: true },
+          { text: `Derivação prefixal com alomorfia da preposição latina.`, isCorrect: false },
+          { text: `Reduplicação expressiva de sílaba tônica.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q026`,
+        topic: `Formação de Palavras`,
+        source: `Padrão Provão Paulista`,
+        prompt: `Na frase “O estudante <strong>subestimou</strong> a complexidade da análise <strong>socioeconômica</strong>”, a formação das duas palavras destacadas ilustra, respectivamente:`,
+        options: [
+          { text: `Derivação prefixal e composição de dois radicais adjetivais (com perda do hífen e adaptação gráfica).`, isCorrect: true },
+          { text: `Derivação regressiva e derivação imprópria.`, isCorrect: false },
+          { text: `Parassíntese e abreviação lexical.`, isCorrect: false },
+          { text: `Hibridismo e onomatopeia.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q027`,
+        topic: `Formação de Palavras`,
+        source: `Padrão ENEM / Saraiva`,
+        prompt: `Quando a língua cria o substantivo “portunhol” (português + espanhol) ou “showmício” (show + comício) fundindo partes truncadas de duas palavras existentes, ocorre um processo especial denominado:`,
+        options: [
+          { text: `Palavra-valise (cruzamento vocabular ou amálgama lexical).`, isCorrect: true },
+          { text: `Derivação regressiva deverbal.`, isCorrect: false },
+          { text: `Derivação prefixal erudita.`, isCorrect: false },
+          { text: `Composição por justaposição hifenizada.`, isCorrect: false }
+        ]
+      },
+
+      /* --- BLOCO C: ORTOGRAFIA, FONOLOGIA E ACENTUAÇÃO (12 questões) --- */
+      {
+        id: `q028`,
+        topic: `Ortografia, Fonologia e Acentuação`,
+        source: `Padrão Provão Paulista / ETEC`,
+        prompt: `Conforme o Novo Acordo Ortográfico vigente na língua portuguesa, assinale a alternativa em que TODAS as palavras estão grafadas e acentuadas rigorosamente segundo a norma-padrão:`,
+        options: [
+          { text: `Idéia, heroico, vôo, micro-ondas, anti-inflamatório.`, isCorrect: false },
+          { text: `Ideia, heroico, voo, micro-ondas, anti-inflamatório.`, isCorrect: true },
+          { text: `Ideia, heróico, vôo, microondas, antinflamatório.`, isCorrect: false },
+          { text: `Idéia, heroico, voo, microondas, antiinflamatório.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q029`,
+        topic: `Ortografia, Fonologia e Acentuação`,
+        source: `Padrão ITA`,
+        prompt: `Analise as palavras “saúde”, “heroína”, “feia” e “feiura”. Por que “saúde” e “heroína” recebem acento gráfico, enquanto “feiura” deixou de ser acentuada após a reforma ortográfica?`,
+        options: [
+          { text: `Porque em “saúde” e “heroína” as vogais tônicas “u” e “i” formam hiato com a vogal anterior sem serem precedidas por ditongo decrescente; em “feiura”, o “u” tônico em hiato vem após o ditongo decrescente “ei”, perdendo o acento nas paroxítonas.`, isCorrect: true },
+          { text: `Porque “feiura” passou a ser classificada como oxítona terminada em vogal átona.`, isCorrect: false },
+          { text: `Porque todas as paroxítonas terminadas em “a” deixaram de receber acento agudo no Novo Acordo.`, isCorrect: false },
+          { text: `Porque em “saúde” ocorre um tritongo crescente tônico na sílaba final.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q030`,
+        topic: `Ortografia, Fonologia e Acentuação`,
+        source: `Padrão FUVEST / ETEC`,
+        prompt: `Quanto ao uso do acento diferencial após o Novo Acordo Ortográfico, assinale a frase integralmente correta:`,
+        options: [
+          { text: `Ele sempre pára no sinal vermelho antes que o trânsito dê um nó no cruzamento.`, isCorrect: false },
+          { text: `Ontem ele não pôde comparecer à reunião, mas hoje pode assinar o termo; além disso, eles têm consciência de que o projeto mantém suas metas.`, isCorrect: true },
+          { text: `Aquele funcionário não têm paciência para revisar os pêlos do tecido nem a pêra da sobremesa.`, isCorrect: false },
+          { text: `Os alunos mantém o foco quando o professor pôde esclarecer por que ela vêem tantas falhas.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q031`,
+        topic: `Ortografia, Fonologia e Acentuação`,
+        source: `Padrão Provão Paulista`,
+        prompt: `Considere os encontros vocálicos e consonantais em: “uruguaios”, “enxaguou”, “exceção” e “psicologia”. A análise fonológica rigorosa indica que:`,
+        options: [
+          { text: `“Uruguaios” apresenta tritongo oral na sílaba final (“-guai-” seguido de “os” ou “-guaios”); “exceção” possui dígrafo consonantal (“xc”) e ditongo nasal (“-ão”).`, isCorrect: true },
+          { text: `Em “psicologia”, o grupo “ps” constitui um dígrafo consonantal que representa apenas um fonema.`, isCorrect: false },
+          { text: `Em “enxaguou”, ocorrem dois hiatos consecutivos formados por vogais idênticas.`, isCorrect: false },
+          { text: `A palavra “exceção” possui exatamente o mesmo número de letras e de fonemas.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q032`,
+        topic: `Ortografia, Fonologia e Acentuação`,
+        source: `Padrão ITA / ETEC`,
+        prompt: `Sobre as regras de emprego do hífen na prefixação, assinale a opção em que TODOS os vocábulos respeitam o Novo Acordo Ortográfico:`,
+        options: [
+          { text: `Autorretrato, ultrassom, semirreta, inter-regional, super-homem.`, isCorrect: true },
+          { text: `Auto-retrato, ultra-som, semi-reta, interregional, superhomem.`, isCorrect: false },
+          { text: `Autorretrato, ultra-som, semirreta, interregional, super-homem.`, isCorrect: false },
+          { text: `Auto-retrato, ultrassom, semi-reta, inter-regional, superhomem.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q033`,
+        topic: `Ortografia, Fonologia e Acentuação`,
+        source: `Padrão FUVEST`,
+        prompt: `Examine a regra de acentuação das paroxítonas e das proparoxítonas eventuais (aparentes). Em qual alternativa TODAS as palavras são acentuadas exatamente pela MESMA regra?`,
+        options: [
+          { text: `Tórax, vírus, caráter, fórum, história.`, isCorrect: true },
+          { text: `Café, sofá, cipó, atrás, você.`, isCorrect: false },
+          { text: `Médico, lâmpada, árvore, álbum, órgão.`, isCorrect: false },
+          { text: `Público, trânsito, difícil, país, baú.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q034`,
+        topic: `Ortografia, Fonologia e Acentuação`,
+        source: `Padrão ETEC`,
+        prompt: `No que diz respeito à contagem de fonemas e letras, assinale a alternativa correta sobre a palavra “chuvinha”:`,
+        options: [
+          { text: `Possui 8 letras e 8 fonemas, pois todas as consoantes são pronunciadas separadamente.`, isCorrect: false },
+          { text: `Possui 8 letras e 6 fonemas, em razão de dois dígrafos consonantais (“ch” e “nh”).`, isCorrect: true },
+          { text: `Possui 8 letras e 7 fonemas, apresentando apenas um dígrafo vocálico.`, isCorrect: false },
+          { text: `Possui 8 letras e 5 fonemas, em função da crase entre as vogais “u” e “i”.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q035`,
+        topic: `Ortografia, Fonologia e Acentuação`,
+        source: `Padrão Provão Paulista`,
+        prompt: `Em relação às oxítonas e aos monossílabos tônicos, identifique a frase em que NÃO há nenhum erro de acentuação gráfica:`,
+        options: [
+          { text: `O pôr do sol sobre o caju e o abacaxi encantou quem veio de trem até o armazém.`, isCorrect: true },
+          { text: `Ele comprou um ítens novo no armazém depois de tomar um chá de guaraná com côco.`, isCorrect: false },
+          { text: `A juíza deu o veredíto após ouvir o réu que trazia um baú de papéis.`, isCorrect: false },
+          { text: `Não há motivo para que você dê um nó no cipó antes de vê-lo partir com o bambú.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q036`,
+        topic: `Ortografia, Fonologia e Acentuação`,
+        source: `Padrão ITA`,
+        prompt: `Considere os pares homógrafos/parônimos: “sede” (vontade de beber) / “sede” (local central); “gosto” (substantivo) / “gosto” (verbo); “pode” (presente) / “pôde” (pretérito). De acordo com a ortografia vigente:`,
+        options: [
+          { text: `Apenas o par “pode / pôde” conserva o acento diferencial obrigatório no pretérito perfeito do indicativo; “sede” e “gosto” perderam qualquer marcação diacrítica diferencial.`, isCorrect: true },
+          { text: `Todos os pares mantêm acento circunflexo diferencial quando funcionam como substantivos.`, isCorrect: false },
+          { text: `O verbo “pôde” perdeu o acento no Novo Acordo, mantendo-se apenas na forma “pára”.`, isCorrect: false },
+          { text: `Os três pares apresentam acento agudo facultativo em textos jornalísticos.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q037`,
+        topic: `Ortografia, Fonologia e Acentuação`,
+        source: `Padrão FUVEST`,
+        prompt: `Assinale a alternativa em que o emprego de “mal” vs. “mau”, “a fim de” vs. “afim” e “senão” vs. “se não” está integralmente adequado à norma culta:`,
+        options: [
+          { text: `Ele passou mau durante a prova, embora não seja um mal aluno; estudou afim de obter boa nota, senão perderia a bolsa.`, isCorrect: false },
+          { text: `Ele passou mal durante a prova, embora não seja um mau aluno; estudou a fim de obter boa nota, pois, se não se esforçasse, perderia a bolsa.`, isCorrect: true },
+          { text: `Ele passou mal durante a prova, embora não seja um mal aluno; possui temperamento a fim ao do irmão.`, isCorrect: false },
+          { text: `Se não houvesse outro recurso, ninguém se sairia mau; contudo, não houve alternativa se não recuar.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q038`,
+        topic: `Ortografia, Fonologia e Acentuação`,
+        source: `Padrão ETEC`,
+        prompt: `Assinale a opção em que a palavra apresenta simultaneamente um encontro consonantal próprio (inseparável) e um dígrafo vocálico (vogal nasalizada por “m” ou “n” na mesma sílaba):`,
+        options: [
+          { text: `Planta.`, isCorrect: true },
+          { text: `Pássaro.`, isCorrect: false },
+          { text: `Cadeira.`, isCorrect: false },
+          { text: `Ritmo.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q039`,
+        topic: `Ortografia, Fonologia e Acentuação`,
+        source: `Padrão Provão Paulista`,
+        prompt: `Sobre o uso do hífen em compostos e locuções substantivas após o Novo Acordo Ortográfico, aponte a sequência inteiramente correta:`,
+        options: [
+          { text: `Dia a dia, fim de semana, bem-te-vi, pé de moleque, coautor.`, isCorrect: true },
+          { text: `Dia-a-dia, fim-de-semana, bem-te-vi, pé-de-moleque, co-autor.`, isCorrect: false },
+          { text: `Dia a dia, fim de semana, bentevi, pé-de-moleque, coautor.`, isCorrect: false },
+          { text: `Dia-a-dia, fim de semana, bem-te-vi, pé de moleque, co-autor.`, isCorrect: false }
+        ]
+      },
+
+      /* --- BLOCO D: VARIAÇÃO LINGUÍSTICA E SOCIOLINGUÍSTICA (12 questões, ancoradas em Textos I, V, VI) --- */
+      {
+        id: `q040`,
+        topic: `Variação Linguística e Sociolinguística`,
+        passageId: `txt_variacao`,
+        source: `Padrão ENEM / FUVEST`,
+        prompt: `Com base na leitura do Texto I, qual é a tese central defendida sobre a relação entre variedade popular e preconceito linguístico?`,
+        options: [
+          { text: `As variedades populares devem substituir a norma-padrão nas universidades por serem mais simples.`, isCorrect: false },
+          { text: `O preconceito linguístico não decorre de falhas estruturais das variedades populares — que seguem regras próprias —, mas de hierarquias sociais projetadas sobre os falantes.`, isCorrect: true },
+          { text: `A norma-padrão é idêntica à língua falada pelas camadas urbanas escolarizadas do Brasil atual.`, isCorrect: false },
+          { text: `A mudança linguística ao longo do tempo comprova a degradação inevitável do sistema gramatical português.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q041`,
+        topic: `Variação Linguística e Sociolinguística`,
+        passageId: `txt_variacao`,
+        source: `Padrão Provão Paulista`,
+        prompt: `No Texto I, menciona-se o fenômeno do rotacismo em “pranta” (troca de /l/ por /r/ em encontro consonantal) e a redução de concordância em “os livro”. Na perspectiva sociolinguística apresentada, tais ocorrências evidenciam:`,
+        options: [
+          { text: `Incapacidade cognitiva ocasional que impede a comunicação entre regiões distintas.`, isCorrect: false },
+          { text: `Processos fonológicos e morfossintáticos regulares historicamente documentados na evolução das línguas românicas, cuja rejeição social tem motivação extralinguística.`, isCorrect: true },
+          { text: `Variações estritamente diafásicas utilizadas apenas em textos literários barrocos.`, isCorrect: false },
+          { text: `Invenções individuais aleatórias sem padrão sistemático dentro da comunidade de fala.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q042`,
+        topic: `Variação Linguística e Sociolinguística`,
+        passageId: `txt_variacao`,
+        source: `Padrão ENEM`,
+        prompt: `Ao afirmar no último parágrafo do Texto I que combater o preconceito não significa privar o estudante da norma urbana de prestígio, o texto sustenta que:`,
+        options: [
+          { text: `O domínio de múltiplos registros linguísticos confere poder de atuação cidadã e capacidade de adequação a situações formais e informais.`, isCorrect: true },
+          { text: `A escola deve restringir seu ensino à transcrição fonética da fala espontânea.`, isCorrect: false },
+          { text: `Exames vestibulares e relatórios técnicos devem abandonar qualquer convenção ortográfica.`, isCorrect: false },
+          { text: `A dicotomia entre “certo” e “errado” é o critério científico mais preciso para avaliar a oralidade.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q043`,
+        topic: `Variação Linguística e Sociolinguística`,
+        passageId: `txt_variacao`,
+        source: `Padrão FUVEST`,
+        prompt: `Considere os quatro eixos clássicos da variação linguística. Quando um estudante alterna entre “fala aí, mano, firmeza?” no pátio da escola e “prezada coordenação, solicito revisão” em um requerimento formal, ocorre essencialmente variação:`,
+        options: [
+          { text: `Diatópica (geográfica).`, isCorrect: false },
+          { text: `Diafásica (situacional / de registro).`, isCorrect: true },
+          { text: `Diacrônica (histórica).`, isCorrect: false },
+          { text: `Etimológica (lexical arcaica).`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q044`,
+        topic: `Variação Linguística e Sociolinguística`,
+        passageId: `txt_amazonia`,
+        source: `Padrão ENEM / ETEC`,
+        prompt: `De acordo com o Texto V, a cooficialização do nheengatu, do baníua e do tucano em São Gabriel da Cachoeira (AM) possui relevância linguística e política porque:`,
+        options: [
+          { text: `Elimina o uso da língua portuguesa nos documentos oficiais da Amazônia Legal.`, isCorrect: false },
+          { text: `Desconstrói o mito do monolinguismo nacional e reconhece os idiomas indígenas como arquivos vivos de saberes ecológicos e identidade comunitária.`, isCorrect: true },
+          { text: `Substitui integralmente o léxico tupi-guarani por termos de origem europeia.`, isCorrect: false },
+          { text: `Restringe a comunicação indígena à oralidade, proibindo o uso de plataformas digitais pelas aldeias.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q045`,
+        topic: `Variação Linguística e Sociolinguística`,
+        passageId: `txt_amazonia`,
+        source: `Padrão Provão Paulista`,
+        prompt: `Segundo o Texto V, palavras como “cafuné”, “quilombo”, “abacaxi” e “caatinga” demonstram que o português brasileiro:`,
+        options: [
+          { text: `Conservou-se imutável desde o século XVI graças ao isolamento da língua escrita.`, isCorrect: false },
+          { text: `Formou-se a partir de intensos contatos históricos com línguas indígenas e africanas, incorporando traços lexicais, fonológicos e morfológicos múltiplos.`, isCorrect: true },
+          { text: `Adotou empréstimos africanos exclusivamente na terminologia científica contemporânea.`, isCorrect: false },
+          { text: `Substituiu completamente suas matrizes latinas pelas línguas bantas e iorubás.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q046`,
+        topic: `Variação Linguística e Sociolinguística`,
+        passageId: `txt_trabalho`,
+        source: `Padrão ETEC`,
+        prompt: `Com base no Texto VI, qual postura linguística é recomendada ao estudante do Ensino Médio Técnico ao elaborar uma biodata ou roteiro de videocurrículo?`,
+        options: [
+          { text: `Empregar abreviações de mensagens instantâneas e gírias para demonstrar juventude e descontração absoluta.`, isCorrect: false },
+          { text: `Acumular clichês burocráticos e gerundismos para conferir solenidade artificial ao perfil.`, isCorrect: false },
+          { text: `Equilibrar clareza objetiva, verbos de ação precisos e respeito à norma-padrão para construir credibilidade técnica.`, isCorrect: true },
+          { text: `Evitar qualquer planejamento textual prévio na gravação de vídeos profissionais.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q047`,
+        topic: `Variação Linguística e Sociolinguística`,
+        passageId: `txt_trabalho`,
+        source: `Padrão ENEM / ETEC`,
+        prompt: `No Texto VI, afirma-se que na transição da fala espontânea para gêneros profissionais monitorados, falhas como “erros de acentuação em termos técnicos” e “concordância diante de sujeitos pospostos” comprometem a candidatura. Essa observação evidencia que:`,
+        options: [
+          { text: `A variação de registro exige adequação normativa conforme o gênero textual e as expectativas da situação comunicativa.`, isCorrect: true },
+          { text: `A língua falada deve ser integralmente transposta para o papel sem edição sintática.`, isCorrect: false },
+          { text: `A norma-padrão aplica-se exclusivamente à poesia lírica e jamais ao mundo do trabalho.`, isCorrect: false },
+          { text: `O videocurrículo dispensa coesão por ser um gênero estritamente não verbal.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q048`,
+        topic: `Variação Linguística e Sociolinguística`,
+        source: `Padrão FUVEST`,
+        prompt: `A evolução histórica da expressão “Vossa Mercê” → “vossemecê” → “você” → “cê” na fala cotidiana brasileira ilustra exemplarmente um processo de:`,
+        options: [
+          { text: `Variação diatópica exclusiva da região Sul do país.`, isCorrect: false },
+          { text: `Variação diacrônica e gramaticalização acompanhada de desgaste fonético pelo uso frequente.`, isCorrect: true },
+          { text: `Empréstimo lexical direto da língua inglesa no século XX.`, isCorrect: false },
+          { text: `Derivação parassintética por prefixação erudita.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q049`,
+        topic: `Variação Linguística e Sociolinguística`,
+        source: `Padrão ENEM`,
+        prompt: `Um diálogo entre dois engenheiros de software repleto de termos como “deploy”, “refatoração”, “endpoint” e “latência” manifesta principalmente:`,
+        options: [
+          { text: `Jargão técnico (variação diastrática/profissional) funcionalmente adequado ao domínio de atuação dos interlocutores.`, isCorrect: true },
+          { text: `Preconceito linguístico contra a variedade rural brasileira.`, isCorrect: false },
+          { text: `Desvio ortográfico decorrente de analfabetismo funcional.`, isCorrect: false },
+          { text: `Variação histórica típica do português quinhentista.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q050`,
+        topic: `Variação Linguística e Sociolinguística`,
+        source: `Padrão Provão Paulista`,
+        prompt: `Assinale a alternativa que distingue adequadamente “norma culta (real)” de “norma-padrão (idealizada)”:`,
+        options: [
+          { text: `A norma-padrão corresponde exatamente à fala coloquial dos apresentadores de televisão, enquanto a norma culta restringe-se ao latim clássico.`, isCorrect: false },
+          { text: `A norma-padrão é o modelo prescrito pelas gramáticas tradicionais como referência ideal de escrita, ao passo que a norma culta reúne os usos efetivamente praticados por falantes com alta escolaridade em situações monitoradas.`, isCorrect: true },
+          { text: `Ambas designam exatamente o mesmo conjunto rígido de regras imutáveis desde o século XVI.`, isCorrect: false },
+          { text: `A norma culta proíbe o emprego de próclise em início de frase falada, ao contrário da norma-padrão.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q051`,
+        topic: `Variação Linguística e Sociolinguística`,
+        source: `Padrão FUVEST`,
+        prompt: `Quando um cronista escreve “A gente fomos até a estação, mas num deu tempo de pegá o trem”, reproduzindo a fala popular em discurso direto, a opção do autor visa:`,
+        options: [
+          { text: `Cometer erros acidentais de revisão tipográfica.`, isCorrect: false },
+          { text: `Construir verossimilhança estilística e caracterização sociocultural do falante por meio de marcas de oralidade e variação regional/social.`, isCorrect: true },
+          { text: `Demonstrar a superioridade estética do arcaísmo galego-português.`, isCorrect: false },
+          { text: `Substituir a pontuação normativa pela parassíntese verbal.`, isCorrect: false }
+        ]
+      },
+
+      /* --- BLOCO E: CLASSES DE PALAVRAS E MORFOSSINTAXE (13 questões) --- */
+      {
+        id: `q052`,
+        topic: `Classes de Palavras e Morfossintaxe`,
+        source: `Padrão FUVEST / ITA`,
+        prompt: `Observe o emprego da palavra “que” nos enunciados abaixo:
+I. “O livro <strong>que</strong> li ontem discute morfologia.”
+II. “Espero <strong>que</strong> todos concluam o diagnóstico.”
+III. “<strong>Que</strong> clareza admirável apresenta este ensaio!”
+A classificação morfossintática correta de “que” em I, II e III é, respectivamente:`,
+        options: [
+          { text: `Conjunção integrante; pronome relativo; advérbio de intensidade.`, isCorrect: false },
+          { text: `Pronome relativo; conjunção subordinativa integrante; pronome/determinante exclamativo (ou adjetivo exclamativo).`, isCorrect: true },
+          { text: `Pronome indefinido; partícula expletiva; conjunção coordenativa explicativa.`, isCorrect: false },
+          { text: `Conjunção causal; pronome relativo; preposição acidental.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q053`,
+        topic: `Classes de Palavras e Morfossintaxe`,
+        source: `Padrão Provão Paulista`,
+        prompt: `Na frase “Entreguei o relatório <strong>cujo</strong> conteúdo revisamos ontem”, o emprego do pronome relativo “cujo” respeita a norma-padrão porque:`,
+        options: [
+          { text: `Exige obrigatoriamente artigo definido masculino após si (“cujo o conteúdo”).`, isCorrect: false },
+          { text: `Estabelece relação de posse entre “relatório” (possuidor) e “conteúdo” (possuído), concordando em gênero e número com o termo consequente sem admitir artigo posposto.`, isCorrect: true },
+          { text: `Funciona como conjunção integrante equivalendo a “que ele”.`, isCorrect: false },
+          { text: `Concorda em número exclusivamente com o sujeito oculto do verbo “entreguei”.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q054`,
+        topic: `Classes de Palavras e Morfossintaxe`,
+        source: `Padrão ITA`,
+        prompt: `Considere os valores semânticos e morfossintáticos dos tempos e modos verbais em: “Se os gestores <strong>investissem</strong> na prevenção de encostas, muitos desastres <strong>seriam evitados</strong>”. Assinale a correlação exata:`,
+        options: [
+          { text: `Pretérito imperfeito do subjuntivo (hipótese condicional) correlacionado ao futuro do pretérito do indicativo na voz passiva analítica.`, isCorrect: true },
+          { text: `Futuro do subjuntivo correlacionado ao pretérito mais-que-perfeito composto na voz ativa.`, isCorrect: false },
+          { text: `Presente do subjuntivo correlacionado ao futuro do presente na voz reflexiva.`, isCorrect: false },
+          { text: `Pretérito perfeito do indicativo correlacionado ao imperativo afirmativo.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q055`,
+        topic: `Classes de Palavras e Morfossintaxe`,
+        source: `Padrão FUVEST`,
+        prompt: `Em “Um <strong>velho amigo</strong> visitou-me; era um <strong>amigo velho</strong> da época do colégio”, a alteração da posição do adjetivo em relação ao substantivo provoca:`,
+        options: [
+          { text: `Apenas mudança rítmica sem qualquer efeito semântico.`, isCorrect: false },
+          { text: `Mudança de sentido: anteposto, “velho” indica amizade antiga e duradoura (sentido afetivo/temporal da relação); posposto, tende ao sentido objetivo de idade avançada.`, isCorrect: true },
+          { text: `Conversão do substantivo “amigo” em advérbio de modo.`, isCorrect: false },
+          { text: `Agramaticalidade, pois adjetivos qualificativos não admitem anteposição no português.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q056`,
+        topic: `Classes de Palavras e Morfossintaxe`,
+        source: `Padrão Provão Paulista`,
+        prompt: `Classifique corretamente a partícula “se” nos dois períodos a seguir:
+1. “Analisaram-<strong>se</strong> os dados da pesquisa com rigor.”
+2. “Precisa-<strong>se</strong> de revisores atentos aos detalhes.”`,
+        options: [
+          { text: `1: índice de indeterminação do sujeito; 2: pronome apassivador.`, isCorrect: false },
+          { text: `1: pronome apassivador (voz passiva sintética, com sujeito paciente “os dados da pesquisa”); 2: índice de indeterminação do sujeito (verbo transitivo indireto na 3ª pessoa do singular).`, isCorrect: true },
+          { text: `Ambos são pronomes reflexivos recíprocos.`, isCorrect: false },
+          { text: `1: conjunção condicional; 2: partícula de realce expletiva.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q057`,
+        topic: `Classes de Palavras e Morfossintaxe`,
+        source: `Padrão ETEC / ENEM`,
+        prompt: `Leia: “<strong>Embora</strong> o texto fosse extenso, os alunos responderam às questões com calma, <strong>visto que</strong> haviam praticado a leitura crítica”. Os conectivos destacados expressam, respectivamente, relações lógico-semânticas de:`,
+        options: [
+          { text: `Concessão e causa/explicação.`, isCorrect: true },
+          { text: `Condição e finalidade.`, isCorrect: false },
+          { text: `Consequência e oposição adversativa.`, isCorrect: false },
+          { text: `Proporção e tempo posterior.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q058`,
+        topic: `Classes de Palavras e Morfossintaxe`,
+        source: `Padrão ITA`,
+        prompt: `Identifique a frase em que a palavra “meio” funciona como ADVÉRBIO (permanecendo, portanto, invariável segundo a norma-padrão):`,
+        options: [
+          { text: `O projeto ainda está meio incompleto devido às falhas na revisão final.`, isCorrect: true },
+          { text: `Bebeu apenas meio copo de água antes da apresentação oral.`, isCorrect: false },
+          { text: `Não encontramos nenhum meio eficaz de acelerar o processo.`, isCorrect: false },
+          { text: `Chegou ao auditório ao meio-dia e meia em ponto.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q059`,
+        topic: `Classes de Palavras e Morfossintaxe`,
+        source: `Padrão FUVEST`,
+        prompt: `Observe a distinção de uso entre os pronomes demonstrativos: “O texto analisa o Barroco e o Modernismo; <strong>este</strong> valorizou a oralidade, ao passo que <strong>aquele</strong> explorou o conflito antitético”. A referência anafórica está:`,
+        options: [
+          { text: `Incorreta, pois “este” deve retomar o elemento mais distante (“Barroco”).`, isCorrect: false },
+          { text: `Correta, pois “este” retoma o referente mais próximo na linearidade textual (“Modernismo”) e “aquele” retoma o mais distante (“Barroco”).`, isCorrect: true },
+          { text: `Incorreta, pois apenas “esse” pode desempenhar função anafórica em textos dissertativos.`, isCorrect: false },
+          { text: `Correta apenas porque ambos são pronomes indefinidos neutros.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q060`,
+        topic: `Classes de Palavras e Morfossintaxe`,
+        source: `Padrão Provão Paulista`,
+        prompt: `Em “Quando o candidato <strong>requerer</strong> a revisão do gabarito, a banca verificará se ele <strong>manteve</strong> a coerência das respostas”, avalie as formas verbais em negrito quanto à norma culta:`,
+        options: [
+          { text: `A primeira forma está correta no futuro do subjuntivo (derivada de “requerer”, que não segue “querer” nesse tempo), e a segunda está correta no pretérito perfeito do indicativo (derivada de “ter”).`, isCorrect: true },
+          { text: `A primeira forma deveria ser “requiser”, por analogia obrigatória com “quiser”.`, isCorrect: false },
+          { text: `A segunda forma deveria ser “manteu”, pois “manter” é verbo regular da 2ª conjugação.`, isCorrect: false },
+          { text: `Ambas estão conjugadas no pretérito mais-que-perfeito do indicativo.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q061`,
+        topic: `Classes de Palavras e Morfossintaxe`,
+        source: `Padrão ENEM / ETEC`,
+        prompt: `Na oração “A preservação ambiental exige <strong>menos</strong> discursos vazios e atitudes <strong>bastantes</strong> para conter a erosão”, a concordância e a classe dos termos destacados estão:`,
+        options: [
+          { text: `Incorretas, pois “menos” deve variar para “menas” diante de substantivos femininos.`, isCorrect: false },
+          { text: `Corretas: “menos” é advérbio/pronome invariável e “bastantes” atua aqui como adjetivo equivalente a “suficientes”, concordando no plural com “atitudes”.`, isCorrect: true },
+          { text: `Incorretas, pois “bastantes” nunca pode flexionar-se no plural na língua portuguesa.`, isCorrect: false },
+          { text: `Corretas apenas porque “menos” é substantivo abstrato masculino.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q062`,
+        topic: `Classes de Palavras e Morfossintaxe`,
+        source: `Padrão ITA`,
+        prompt: `Assinale a alternativa em que o verbo destacado apresenta valor aspecto-temporal de pretérito mais-que-perfeito (ação anterior a outra ação já situada no passado):`,
+        options: [
+          { text: `Quando chegamos à estação, o último trem já <strong>partira</strong>.`, isCorrect: true },
+          { text: `Todos os dias ele <strong>partia</strong> antes do amanhecer para a escola técnica.`, isCorrect: false },
+          { text: `Se houvesse tempo, o grupo <strong>partiria</strong> ainda esta noite.`, isCorrect: false },
+          { text: `Assim que o sinal tocou, a turma <strong>partiu</strong> em silêncio.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q063`,
+        topic: `Classes de Palavras e Morfossintaxe`,
+        source: `Padrão FUVEST`,
+        prompt: `Considere o valor da preposição “a” e da preposição “por” em: “O artigo foi elogiado <strong>por</strong> especialistas devido <strong>a</strong> sua precisão conceitual”. As preposições introduzem, respectivamente:`,
+        options: [
+          { text: `Agente da passiva e complemento nominal.`, isCorrect: true },
+          { text: `Objeto direto preposicionado e adjunto adnominal.`, isCorrect: false },
+          { text: `Sujeito composto e aposto explicativo.`, isCorrect: false },
+          { text: `Predicativo do sujeito e vocativo.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q064`,
+        topic: `Classes de Palavras e Morfossintaxe`,
+        source: `Padrão Provão Paulista`,
+        prompt: `Em “Não só os alunos, <strong>mas também</strong> os docentes participaram da organização do sarau”, a locução conjuntiva destacada estabelece relação coordenativa:`,
+        options: [
+          { text: `Adversativa, indicando quebra de expectativa.`, isCorrect: false },
+          { text: `Aditiva, somando dois sujeitos com ênfase argumentativa no segundo elemento.`, isCorrect: true },
+          { text: `Conclusiva, apresentando dedução lógica.`, isCorrect: false },
+          { text: `Alternativa, impondo exclusão mútua entre os termos.`, isCorrect: false }
+        ]
+      },
+
+      /* --- BLOCO F: SINTAXE, CONCORDÂNCIA, REGÊNCIA E CRASE (14 questões) --- */
+      {
+        id: `q065`,
+        topic: `Sintaxe, Concordância, Regência e Crase`,
+        source: `Padrão ITA / FUVEST`,
+        prompt: `Assinale a alternativa que obedece INTEGRALMENTE às regras de concordância verbal e nominal da norma-padrão:`,
+        options: [
+          { text: `Fazem três anos que não ocorrem reformas na biblioteca, mas já existe verbas disponíveis.`, isCorrect: false },
+          { text: `Faz três anos que não ocorrem reformas na biblioteca, mas já existem verbas disponíveis, as quais seguem anexas ao edital.`, isCorrect: true },
+          { text: `Houveram muitas dúvidas sobre a prova, embora seguissem anexo as instruções gerais.`, isCorrect: false },
+          { text: `Choveu aplausos ao final do sarau, pois a maioria dos convidados ficaram emocionadas.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q066`,
+        topic: `Sintaxe, Concordância, Regência e Crase`,
+        source: `Padrão ITA`,
+        prompt: `Examine a regência verbal e o emprego do acento indicativo de crase na frase:
+“O pesquisador <strong>assistiu à</strong> palestra sobre o tema a que <strong>visava</strong> dedicar-se, <strong>preferindo</strong> a leitura crítica <strong>à</strong> memorização mecânica.”
+Sobre as construções em destaque, é correto afirmar que:`,
+        options: [
+          { text: `“Assistir” no sentido de presenciar é transitivo direto, tornando o acento grave em “à palestra” incorreto.`, isCorrect: false },
+          { text: `Todas as ocorrências respeitam rigorosamente a regência normativa: “assistir” (presenciar) e “preferir” (algo a algo) são transitivos indiretos com preposição “a”, justificando a crase diante dos substantivos femininos determinados.`, isCorrect: true },
+          { text: `O verbo “preferir” exige a construção “preferir mais... do que...”, havendo desvio no trecho.`, isCorrect: false },
+          { text: `O verbo “visar” (almejar) exige sempre a preposição “em” antes do pronome relativo.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q067`,
+        topic: `Sintaxe, Concordância, Regência e Crase`,
+        source: `Padrão FUVEST / Provão Paulista`,
+        prompt: `Escolha a opção em que o uso (ou a ausência) da crase está perfeitamente correto:`,
+        options: [
+          { text: `Dirigiu-se à sala de estudos às 14 horas, mas não entregou o texto à ninguém, pois estava disposto à revisá-lo.`, isCorrect: false },
+          { text: `À medida que avançava na leitura, recorria àquela gramática histórica para responder às questões propostas.`, isCorrect: true },
+          { text: `Viajou à Curitiba à negócios e voltou à pé para o alojamento estudantil.`, isCorrect: false },
+          { text: `Daqui à duas semanas teremos acesso à todas as notas finais.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q068`,
+        topic: `Sintaxe, Concordância, Regência e Crase`,
+        source: `Padrão ITA`,
+        prompt: `Quanto à colocação pronominal (próclise, mesóclise e ênclise) segundo a gramática normativa, assinale a alternativa INTEIRAMENTE correta:`,
+        options: [
+          { text: `Me disseram que ninguém esforçou-se para resolver a questão; portanto, entregarei-lhe o gabarito amanhã.`, isCorrect: false },
+          { text: `Disseram-me que ninguém se esforçou para resolver a questão; portanto, entregar-lhe-ei o gabarito amanhã.`, isCorrect: true },
+          { text: `Não entregarei-te os resultados antes de que todos sentem-se em silêncio.`, isCorrect: false },
+          { text: `Em tratando-se de análise morfológica, jamais esqueceremos-nos dos afixos.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q069`,
+        topic: `Sintaxe, Concordância, Regência e Crase`,
+        source: `Padrão FUVEST`,
+        prompt: `Observe a diferença de pontuação entre os períodos:
+I. “Os estudantes, que revisaram a morfologia, obtiveram menção MB.”
+II. “Os estudantes que revisaram a morfologia obtiveram menção MB.”
+A alteração semântica causada pelas vírgulas consiste em que:`,
+        options: [
+          { text: `Em I, a oração adjetiva explicativa generaliza a ação para todos os estudantes do universo referido; em II, a oração adjetiva restritiva delimita apenas o subconjunto dos que revisaram.`, isCorrect: true },
+          { text: `Em I, apenas uma minoria dos estudantes obteve MB; em II, todos obtiveram MB.`, isCorrect: false },
+          { text: `A pontuação em I é gramaticalmente proibida antes de pronomes relativos.`, isCorrect: false },
+          { text: `Em II, a oração subordinada classifica-se como substantiva objetiva direta.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q070`,
+        topic: `Sintaxe, Concordância, Regência e Crase`,
+        source: `Padrão Provão Paulista`,
+        prompt: `Analise o período composto: “É fundamental <strong>que a equipe verifique os dados</strong> antes da publicação”. A oração subordinada destacada exerce a função sintática de:`,
+        options: [
+          { text: `Objeto direto do adjetivo “fundamental”.`, isCorrect: false },
+          { text: `Sujeito oracional (oração subordinada substantiva subjetiva) da oração principal “É fundamental”.`, isCorrect: true },
+          { text: `Adjunto adverbial de finalidade.`, isCorrect: false },
+          { text: `Complemento nominal do verbo de ligação “é”.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q071`,
+        topic: `Sintaxe, Concordância, Regência e Crase`,
+        source: `Padrão ITA`,
+        prompt: `Em qual alternativa o emprego da vírgula está estritamente CORRETO de acordo com a sintaxe normativa?`,
+        options: [
+          { text: `A maioria dos alunos do primeiro ano do ensino integral, concluiu o simulado antes do prazo.`, isCorrect: false },
+          { text: `Durante a madrugada de quinta-feira, a equipe técnica concluiu, com extrema precisão, a revisão dos documentos.`, isCorrect: true },
+          { text: `O coordenador afirmou que, os projetos interdisciplinares serão avaliados na próxima semana.`, isCorrect: false },
+          { text: `Entregaram aos representantes de turma, os boletins impressos com as menções.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q072`,
+        topic: `Sintaxe, Concordância, Regência e Crase`,
+        source: `Padrão FUVEST`,
+        prompt: `Assinale a opção em que o pronome relativo vem corretamente precedido pela preposição exigida pela regência do verbo da oração subordinada:`,
+        options: [
+          { text: `A teoria linguística que nos baseamos foi formulada no século XX.`, isCorrect: false },
+          { text: `A instituição cujos valores nos identificamos promoveu o debate.`, isCorrect: false },
+          { text: `O projeto cultural a que aludiu a diretora conquistou apoio comunitário.`, isCorrect: true },
+          { text: `A cidade onde todos aspiram conhecer fica no litoral sul.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q073`,
+        topic: `Sintaxe, Concordância, Regência e Crase`,
+        source: `Padrão ETEC / Provão Paulista`,
+        prompt: `Considere o período: “A crítica literária elogiou a obra, <strong>cujo autor recusou prêmios oficiais</strong>, e <strong>a qual</strong> provocou intenso debate”. Em relação à sintaxe e à concordância com o pronome “cujo”, verifica-se que:`,
+        options: [
+          { text: `“Cujo autor” funciona como sujeito da oração adjetiva, estando corretamente sem artigo e estabelecendo posse em relação a “obra”.`, isCorrect: true },
+          { text: `“A qual” refere-se obrigatoriamente ao substantivo masculino “autor”.`, isCorrect: false },
+          { text: `A frase exige substituição de “cujo autor” por “que o autor dela” para atender à norma culta.`, isCorrect: false },
+          { text: `A vírgula antes de “cujo” indica uma oração subordinada adverbial temporal.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q074`,
+        topic: `Sintaxe, Concordância, Regência e Crase`,
+        source: `Padrão ITA`,
+        prompt: `Assinale a frase em que a concordância verbal com o sujeito composto ou com expressões partitivas/percentuais está em desacordo com a norma-padrão:`,
+        options: [
+          { text: `Mais de um candidato apresentou recurso fundamentado dentro do prazo.`, isCorrect: false },
+          { text: `Cerca de 25% da turma atingiu a menção máxima na avaliação diagnóstica.`, isCorrect: false },
+          { text: `Vossa Senhoria deveis encaminhar o parecer técnico até sexta-feira.`, isCorrect: true },
+          { text: `Faltam cinco minutos para o encerramento oficial da sessão.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q075`,
+        topic: `Sintaxe, Concordância, Regência e Crase`,
+        source: `Padrão FUVEST`,
+        prompt: `No período “Não compareceram à cerimônia <strong>nem o secretário nem os diretores</strong>, mas a assembleia transcorreu <strong>conforme previra o regimento</strong>”, as orações apresentam, respectivamente:`,
+        options: [
+          { text: `Sujeito composto posposto com verbo no plural; e oração subordinada adverbial conformativa.`, isCorrect: true },
+          { text: `Sujeito indeterminado; e oração subordinada adverbial proporcional.`, isCorrect: false },
+          { text: `Oração sem sujeito; e oração coordenada sindética conclusiva.`, isCorrect: false },
+          { text: `Sujeito simples oculto; e oração subordinada substantiva apositiva.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q076`,
+        topic: `Sintaxe, Concordância, Regência e Crase`,
+        source: `Padrão Provão Paulista`,
+        prompt: `Assinale a alternativa em que a mudança de voz ativa para voz passiva analítica preserva exatamente o tempo e o modo verbais de “A comissão revisara os cadernos de prova”:`,
+        options: [
+          { text: `Os cadernos de prova eram revisados pela comissão.`, isCorrect: false },
+          { text: `Os cadernos de prova foram revisados pela comissão.`, isCorrect: false },
+          { text: `Os cadernos de prova haviam sido revisados pela comissão (forma composta correspondente ao pretérito mais-que-perfeito).`, isCorrect: true },
+          { text: `Os cadernos de prova seriam revisados pela comissão.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q077`,
+        topic: `Sintaxe, Concordância, Regência e Crase`,
+        source: `Padrão ITA`,
+        prompt: `Quanto ao uso da crase diante das palavras “casa”, “terra” e “distância”, identifique a ÚNICA frase integralmente correta:`,
+        options: [
+          { text: `Voltou à casa exausto após o expediente; já os marinheiros desceram à terra firme.`, isCorrect: false },
+          { text: `Voltou à casa dos pais no feriado; o navio aproximava-se da terra natal e o grupo manteve-se à distância de cem metros.`, isCorrect: true },
+          { text: `Chegou cedo à casa própria, mas preferiu ficar à distância de tudo sem especificar metros.`, isCorrect: false },
+          { text: `Os astronautas regressaram à terra após meses em órbita.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q078`,
+        topic: `Sintaxe, Concordância, Regência e Crase`,
+        source: `Padrão FUVEST`,
+        prompt: `Em “O parecer tornou-se <strong>indispensável</strong> à aprovação do projeto”, os termos “indispensável” e “à aprovação do projeto” desempenham, respectivamente, as funções de:`,
+        options: [
+          { text: `Predicativo do sujeito e complemento nominal.`, isCorrect: true },
+          { text: `Adjunto adnominal e objeto indireto.`, isCorrect: false },
+          { text: `Predicativo do objeto e agente da passiva.`, isCorrect: false },
+          { text: `Adjunto adverbial de modo e objeto direto.`, isCorrect: false }
+        ]
+      },
+
+      /* --- BLOCO G: SEMÂNTICA, COESÃO E ENUNCIAÇÃO (12 questões, ancoradas em Textos II, III, IV, VIII) --- */
+      {
+        id: `q079`,
+        topic: `Semântica, Coesão e Enunciação`,
+        passageId: `txt_bakhtin`,
+        source: `Padrão FUVEST / ENEM`,
+        prompt: `Segundo o Texto II, conceber a palavra como uma “ponte lançada entre o locutor e o seu interlocutor” implica afirmar que:`,
+        options: [
+          { text: `O sentido de um vocábulo esgota-se na definição etimológica registrada no dicionário.`, isCorrect: false },
+          { text: `A significação resulta de uma construção interativa e dialógica, moldada pela situação social, pelos discursos prévios e pelas expectativas sobre o ouvinte/leitor.`, isCorrect: true },
+          { text: `A morfologia e a sintaxe são irrelevantes para a interpretação de textos digitais.`, isCorrect: false },
+          { text: `Todo enunciado escrito possui um sentido literal único, independente do gênero discursivo.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q080`,
+        topic: `Semântica, Coesão e Enunciação`,
+        passageId: `txt_bakhtin`,
+        source: `Padrão Provão Paulista / FUVEST`,
+        prompt: `No segundo parágrafo do Texto II, citam-se recursos gramaticais como “verbos modalizadores (dever, poder)” e “advérbios avaliativos”. Na análise enunciativa, a função precípua da modalização consiste em:`,
+        options: [
+          { text: `Eliminar qualquer marca de subjetividade do texto científico.`, isCorrect: false },
+          { text: `Sinalizar a atitude, o grau de certeza (modalidade epistêmica), de obrigatoriedade (deôntica) ou de julgamento de valor (apreciativa) do enunciador diante do enunciado.`, isCorrect: true },
+          { text: `Substituir os pronomes pessoais por siglas padronizadas.`, isCorrect: false },
+          { text: `Converter orações subordinadas em períodos simples sem conectivos.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q081`,
+        topic: `Semântica, Coesão e Enunciação`,
+        passageId: `txt_machado`,
+        source: `Padrão FUVEST`,
+        prompt: `De acordo com o Texto III, qual efeito retórico produz a expressão “ferozmente honrado” ao associar o advérbio ao adjetivo?`,
+        options: [
+          { text: `Reforça a admiração sincera e incondicional do narrador pelo personagem.`, isCorrect: false },
+          { text: `Gera um choque semântico irônico que expõe a contradição entre a aparente retidão moral e a brutalidade efetiva das práticas do personagem.`, isCorrect: true },
+          { text: `Indica que o personagem praticava apenas virtudes orçamentárias sem vínculos escravocratas.`, isCorrect: false },
+          { text: `Constitui um pleonasmo vicioso involuntário típico da oralidade coloquial.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q082`,
+        topic: `Semântica, Coesão e Enunciação`,
+        passageId: `txt_machado`,
+        source: `Padrão ITA / FUVEST`,
+        prompt: `Ainda sobre o Texto III, explica-se que as orações concessivas (“posto que”, “ainda que”) na prosa machadiana atuam como instrumento de corrosão argumentativa porque:`,
+        options: [
+          { text: `Simulam conceder uma atenuante ou justificativa racional para a conduta criticada, mas acabam realçando o cinismo e a injustiça da desculpa formulada.`, isCorrect: true },
+          { text: `Estabelecem relação temporal estrita entre passado remoto e futuro do presente.`, isCorrect: false },
+          { text: `Eliminam a presença de qualquer voz implícita do narrador no discurso indireto livre.`, isCorrect: false },
+          { text: `Restringem o vocabulário à norma popular urbana do século XXI.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q083`,
+        topic: `Semântica, Coesão e Enunciação`,
+        passageId: `txt_tecnologia`,
+        source: `Padrão ENEM / FUVEST`,
+        prompt: `Conforme o Texto IV, por que a supressão proposital de modalizadores epistêmicos (como “segundo dados preliminares”) potencializa a manipulação em mensagens fraudulentas?`,
+        options: [
+          { text: `Porque torna o texto mais longo e difícil de ser lido em telas pequenas.`, isCorrect: false },
+          { text: `Porque transforma suposições infundadas em afirmações categóricas e inquestionáveis, estimulando a adesão emocional e o compartilhamento imediato.`, isCorrect: true },
+          { text: `Porque obriga o leitor a checar todas as fontes científicas antes de clicar em links.`, isCorrect: false },
+          { text: `Porque impede o uso de verbos no modo imperativo nas redes sociais.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q084`,
+        topic: `Semântica, Coesão e Enunciação`,
+        passageId: `txt_tecnologia`,
+        source: `Padrão ENEM`,
+        prompt: `No primeiro parágrafo do Texto IV, o conector “mas” em “Esse deslocamento democratizou a expressão [...], <strong>mas</strong> também potencializou a disseminação veloz de mensagens apócrifas” orienta a argumentação para:`,
+        options: [
+          { text: `Apresentar uma contrapartida problematizadora que restringe o entusiasmo ingênuo sobre a democratização midiática.`, isCorrect: true },
+          { text: `Concluir que o acesso à internet deveria ser proibido fora das redações jornalísticas.`, isCorrect: false },
+          { text: `Indicar uma consequência temporal inevitável sem oposição de ideias.`, isCorrect: false },
+          { text: `Explicar a origem etimológica da palavra “phishing”.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q085`,
+        topic: `Semântica, Coesão e Enunciação`,
+        passageId: `txt_ecologia`,
+        source: `Padrão FUVEST / ENEM`,
+        prompt: `Segundo o Texto VIII, o recurso gramatical frequentemente empregado em discursos de greenwashing para diluir ou ocultar a responsabilidade empresarial diante de danos ambientais é:`,
+        options: [
+          { text: `A voz ativa com sujeito próprio explicitado e datas precisas.`, isCorrect: false },
+          { text: `A indeterminação do sujeito e o emprego da voz passiva sem agente expresso (ex.: “resíduos são destinados adequadamente”).`, isCorrect: true },
+          { text: `O uso exclusivo de frases nominais interrogativas.`, isCorrect: false },
+          { text: `A substituição de todos os adjetivos por numerais cardinais.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q086`,
+        topic: `Semântica, Coesão e Enunciação`,
+        passageId: `txt_ecologia`,
+        source: `Padrão Provão Paulista`,
+        prompt: `No Texto VIII, a expressão metafórica “vísceras expostas” atribuída a sobras de madeira recolhidas de caçambas urbanas produz o efeito semântico de:`,
+        options: [
+          { text: `Suavizar os efeitos da impermeabilização do solo por meio de um eufemismo técnico.`, isCorrect: false },
+          { text: `Comparar a cidade a um organismo vivo cuja degradação oculta torna-se visível e urgente através dos resíduos descartados.`, isCorrect: true },
+          { text: `Negar a relevância das florestas tropicais no debate climático global.`, isCorrect: false },
+          { text: `Comprovar a eficácia orçamentária das obras de contenção de encostas.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q087`,
+        topic: `Semântica, Coesão e Enunciação`,
+        source: `Padrão ITA / FUVEST`,
+        prompt: `Analise o pressuposto contido na frase: “A diretora <strong>voltou a cobrar</strong> pontualidade na entrega dos relatórios”. O conteúdo pressuposto pela locução verbal destacada é que:`,
+        options: [
+          { text: `Os relatórios já haviam sido cobrados com pontualidade anteriormente, tendo ocorrido um intervalo ou retomada dessa cobrança.`, isCorrect: true },
+          { text: `Os estudantes nunca haviam entregado relatórios antes daquele momento.`, isCorrect: false },
+          { text: `A diretora renunciou definitivamente à função administrativa.`, isCorrect: false },
+          { text: `Não há nenhuma informação implícita acionada pelo verbo “voltar”.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q088`,
+        topic: `Semântica, Coesão e Enunciação`,
+        source: `Padrão Provão Paulista`,
+        prompt: `Identifique a frase que apresenta ambiguidade sintático-semântica passível de dupla interpretação e que, portanto, prejudicaria a clareza de um texto técnico:`,
+        options: [
+          { text: `O professor orientou os alunos durante a oficina de leitura realizada na biblioteca.`, isCorrect: false },
+          { text: `O técnico encontrou o coordenador preocupado com o novo relatório em sua sala.`, isCorrect: true },
+          { text: `Após o término do simulado, todos os cartões foram conferidos pela coordenação.`, isCorrect: false },
+          { text: `A aluna enviou o requerimento digital dentro do prazo estipulado pelo edital.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q089`,
+        topic: `Semântica, Coesão e Enunciação`,
+        source: `Padrão ETEC / ENEM`,
+        prompt: `Considere os mecanismos de coesão lexical em: “O <strong>felino</strong> aproximou-se silenciosamente da cerca; aquele <strong>animal</strong> parecia habituado ao terreno”. A substituição de “felino” por “animal” opera por meio de:`,
+        options: [
+          { text: `Hiponímia (passagem do termo mais geral para o mais específico).`, isCorrect: false },
+          { text: `Hiperonímia (retomada de um termo específico por outro de campo semântico mais abrangente).`, isCorrect: true },
+          { text: `Antonímia contextual.`, isCorrect: false },
+          { text: `Catáfora pronominal direta.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q090`,
+        topic: `Semântica, Coesão e Enunciação`,
+        source: `Padrão ITA`,
+        prompt: `Em “Os documentos oficiais foram extraviados, <strong>o que</strong> atrasou o cronograma”, o pronome “o que” desempenha papel coesivo de:`,
+        options: [
+          { text: `Anáfora resumidora (encapsulamento), retomando todo o conteúdo proposicional da oração anterior.`, isCorrect: true },
+          { text: `Catáfora expletiva referente apenas ao substantivo masculino “cronograma”.`, isCorrect: false },
+          { text: `Conjunção subordinativa concessiva.`, isCorrect: false },
+          { text: `Pronome indefinido invariável sem antecedente textual.`, isCorrect: false }
+        ]
+      },
+
+      /* --- BLOCO H: FIGURAS DE LINGUAGEM E ESTILÍSTICA (10 questões, ancoradas em Texto VII e clássicos) --- */
+      {
+        id: `q091`,
+        topic: `Figuras de Linguagem e Estilística`,
+        passageId: `txt_arte`,
+        source: `Padrão ENEM / FUVEST`,
+        prompt: `Com base no Texto VII, a defesa modernista do “erro” criativo e da incorporação da oralidade brasileira na poesia tinha como objetivo principal:`,
+        options: [
+          { text: `Proibir o estudo da gramática histórica e dos autores clássicos nas escolas brasileiras.`, isCorrect: false },
+          { text: `Libertar a expressão literária brasileira da imitação servil do purismo lusitanizante e dos cânones acadêmicos parnasianos.`, isCorrect: true },
+          { text: `Restaurar a métrica rígida dos sonetos quinhentistas portugueses.`, isCorrect: false },
+          { text: `Reduzir a literatura a um manual técnico de normas ortográficas.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q092`,
+        topic: `Figuras de Linguagem e Estilística`,
+        passageId: `txt_arte`,
+        source: `Padrão Provão Paulista`,
+        prompt: `No segundo parágrafo do Texto VII, destaca-se o uso de recursos fônicos no slam e no rap contemporâneos. Assinale a definição que diferencia corretamente “aliteração” de “assonância”:`,
+        options: [
+          { text: `Aliteração é a repetição intencional de fonemas consonantais idênticos ou semelhantes; assonância é a repetição expressiva de fonemas vocálicos tônicos.`, isCorrect: true },
+          { text: `Aliteração ocorre apenas em prosa jornalística; assonância refere-se à ausência total de rimas.`, isCorrect: false },
+          { text: `Ambas designam o exagero intencional de uma ideia para causar impacto emocional.`, isCorrect: false },
+          { text: `Aliteração é a substituição de um termo por outro em virtude de contiguidade física.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q093`,
+        topic: `Figuras de Linguagem e Estilística`,
+        source: `Padrão FUVEST`,
+        prompt: `Nos versos barrocos “Nasce o Sol, e não dura mais que um dia; / Depois da Luz se segue a noite escura, / Em tristes sombras morre a formosura, / Em contínuas tristezas a alegria” (Gregório de Matos), predomina qual figura de pensamento estrutural?`,
+        options: [
+          { text: `Eufemismo, ao suavizar a passagem do tempo.`, isCorrect: false },
+          { text: `Antítese, pela aproximação reiterada de termos e imagens opostas (“Sol/noite”, “Luz/sombras”, “tristezas/alegria”) que expressam a fugacidade da existência.`, isCorrect: true },
+          { text: `Metonímia, pela substituição da parte pelo todo.`, isCorrect: false },
+          { text: `Onomatopeia, pela reprodução acústica da luz solar.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q094`,
+        topic: `Figuras de Linguagem e Estilística`,
+        source: `Padrão ITA`,
+        prompt: `Considere o verso camoniano clássico: “Amor é fogo que arde sem se ver; / É ferida que dói e não se sente”. A figura que funde elementos logicamente contraditórios em uma mesma proposição insolúvel (“ferida que dói e não se sente”) é:`,
+        options: [
+          { text: `Paradoxo (ou oxímoro).`, isCorrect: true },
+          { text: `Hipérbato.`, isCorrect: false },
+          { text: `Catacrese.`, isCorrect: false },
+          { text: `Polissíndeto.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q095`,
+        topic: `Figuras de Linguagem e Estilística`,
+        source: `Padrão ENEM / ETEC`,
+        prompt: `Em “<strong>Li Machado de Assis</strong> durante todo o semestre e emocionei-me com o <strong>bronze dos sinos</strong> no alto da torre”, ocorrem dois exemplos clássicos de:`,
+        options: [
+          { text: `Metáfora e sinestesia.`, isCorrect: false },
+          { text: `Metonímia (autor pela obra; matéria pelo objeto).`, isCorrect: true },
+          { text: `Hipérbole e eufemismo.`, isCorrect: false },
+          { text: `Prosopopeia e ironia.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q096`,
+        topic: `Figuras de Linguagem e Estilística`,
+        source: `Padrão Provão Paulista`,
+        prompt: `Na frase “Um <strong>cheiro doce e áspero</strong> subia do asfalto molhado enquanto o <strong>silêncio cinzento</strong> envolvia a praça”, evidencia-se a mescla de diferentes percepções sensoriais denominada:`,
+        options: [
+          { text: `Sinestesia.`, isCorrect: true },
+          { text: `Gradação.`, isCorrect: false },
+          { text: `Zeugma.`, isCorrect: false },
+          { text: `Pleonasmo.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q097`,
+        topic: `Figuras de Linguagem e Estilística`,
+        source: `Padrão FUVEST`,
+        prompt: `Identifique a alternativa em que ocorre eufemismo (atenuação expressiva de uma realidade penosa, desagradável ou tabu):`,
+        options: [
+          { text: `“Já lhe disse um milhão de vezes que revise os pronomes antes de enviar!”`, isCorrect: false },
+          { text: `“Após longa enfermidade, o velho mestre descansou para sempre ao lado da família.”`, isCorrect: true },
+          { text: `“As árvores sussurravam segredos antigos ao vento da tarde.”`, isCorrect: false },
+          { text: `“O vento varreu a cidade inteira, deixando um rastro de poeira.”`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q098`,
+        topic: `Figuras de Linguagem e Estilística`,
+        source: `Padrão ITA`,
+        prompt: `Na oração “Na sala ao lado, os alunos estudavam morfologia; na biblioteca, sintaxe”, a omissão intencional do verbo “estudavam” na segunda oração por já ter sido expresso anteriormente caracteriza a figura de construção chamada:`,
+        options: [
+          { text: `Anacoluto.`, isCorrect: false },
+          { text: `Zeugma (espécie específica de elipse).`, isCorrect: true },
+          { text: `Silepse de número.`, isCorrect: false },
+          { text: `Assíndeto.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q099`,
+        topic: `Figuras de Linguagem e Estilística`,
+        source: `Padrão ENEM`,
+        prompt: `Em “Os rios choravam sob a ponte de concreto enquanto a madrugada abraçava os telhados vazios”, atribui-se ações e sentimentos humanos a seres inanimados. Trata-se de:`,
+        options: [
+          { text: `Prosopopeia (ou personificação).`, isCorrect: true },
+          { text: `Paronomásia.`, isCorrect: false },
+          { text: `Anáfora.`, isCorrect: false },
+          { text: `Hipérbato.`, isCorrect: false }
+        ]
+      },
+      {
+        id: `q100`,
+        topic: `Figuras de Linguagem e Estilística`,
+        source: `Padrão FUVEST / ETEC`,
+        prompt: `No enunciado “<strong>Os brasileiros</strong> somos persistentes diante dos desafios educacionais”, a concordância do verbo na primeira pessoa do plural com um sujeito formalmente na terceira pessoa do plural constitui um caso legítimo de:`,
+        options: [
+          { text: `Silepse de pessoa (concordância ideológica em que o enunciador se inclui no coletivo referido).`, isCorrect: true },
+          { text: `Catacrese por desgaste lexical.`, isCorrect: false },
+          { text: `Anacoluto por quebra de regência verbal.`, isCorrect: false },
+          { text: `Silepse de gênero com sujeito composto.`, isCorrect: false }
+        ]
+      }
+    ];
+
+    /* =========================================================================
+       4. ESTADO GLOBAL E PERSISTÊNCIA
+       ========================================================================= */
+    const STORAGE_KEY = `gramatica-etec-app-state-v1`;
+    const GOOGLE_FORM_RESPONSE_URL = `https://docs.google.com/forms/d/e/1FAIpQLScoj-aKtLhG4fc92ezyPcwFWU2o3QQD5Nf4ozVcegbtGLCYlw/formResponse`;
+    const GOOGLE_FORM_ENTRY_IDS = {
+      assessmentId: `1890340787`,
+      studentName: `1952015241`,
+      turma: `779200607`,
+      score: `680027905`,
+      mention: `1455384866`,
+      durationSeconds: `797753493`,
+      duration: `1637429430`,
+      start: `1835257204`,
+      end: `981702311`,
+      diagnosis: `554512723`,
+      errorsByTopic: `1896206939`
+    };
+
+    let appState = {
+      records: []
+    };
+
+    let currentSession = {
+      active: false,
+      studentName: ``,
+      turma: ``,
+      startTime: null,
+      timerInterval: null,
+      shuffledQuestions: [],
+      answers: {}, // { questionId: chosenOptionIndex }
+      filterMode: `all`
+    };
+
+    function normalizeAppState(candidate) {
+      return {
+        records: candidate && Array.isArray(candidate.records) ? candidate.records : []
+      };
+    }
+
+    function buildAnswerSnapshot() {
+      if (!Array.isArray(currentSession.shuffledQuestions) || currentSession.shuffledQuestions.length === 0) {
+        return {};
+      }
+
+      const snapshot = {};
+      currentSession.shuffledQuestions.forEach(function(q) {
+        const chosenIndex = currentSession.answers[q.id];
+        const selectedOption = Number.isInteger(chosenIndex) && q.options[chosenIndex]
+          ? q.options[chosenIndex]
+          : null;
+
+        const correctIndex = q.options.findIndex(function(opt) { return !!opt.isCorrect; });
+
+        snapshot[q.id] = {
+          questionId: q.id,
+          topic: q.topic,
+          source: q.source,
+          selectedIndex: Number.isInteger(chosenIndex) ? chosenIndex : null,
+          selectedLetter: Number.isInteger(chosenIndex) ? [`A`, `B`, `C`, `D`][chosenIndex] || `` : ``,
+          selectedText: selectedOption ? selectedOption.text : `Sem resposta`,
+          correctIndex: correctIndex >= 0 ? correctIndex : null,
+          correctText: correctIndex >= 0 ? q.options[correctIndex].text : `—`,
+          isCorrect: !!(selectedOption && selectedOption.isCorrect)
+        };
+      });
+
+      return snapshot;
+    }
+
+    function formatAnswerSummary(answers) {
+      if (!answers || typeof answers !== `object` || Object.keys(answers).length === 0) {
+        return `Sem respostas registradas`;
+      }
+
+      return Object.keys(answers)
+        .map(function(qid) {
+          const entry = answers[qid] || {};
+          const answer = String(entry.selectedText || `Sem resposta`).replace(/<[^>]*>/g, ``);
+          const result = entry.selectedIndex === null ? `em branco` : entry.isCorrect ? `correta` : `incorreta`;
+          return `${qid}: ${answer} (${result})`;
+        })
+        .join(` | `);
+    }
+
+    function submitGoogleFormResponse(record, topicStats) {
+      const endDate = new Date(record.endTimeISO);
+      const startDate = new Date(record.startTimeISO);
+      const diagnosis = formatAnswerSummary(record.answers);
+      const errorsByTopic = Object.keys(topicStats)
+        .map(function(topic) {
+          const stats = topicStats[topic];
+          return `${topic}: ${stats.total - stats.hits} erros em ${stats.total} questões`;
+        })
+        .join(`; `);
+
+      const iframe = document.createElement(`iframe`);
+      iframe.name = `google-form-response-${record.id}`;
+      iframe.title = `Envio de respostas`;
+      iframe.hidden = true;
+      document.body.appendChild(iframe);
+
+      const form = document.createElement(`form`);
+      form.action = GOOGLE_FORM_RESPONSE_URL;
+      form.method = `POST`;
+      form.target = iframe.name;
+      form.hidden = true;
+
+      const values = {
+        assessmentId: record.id,
+        studentName: record.name,
+        turma: record.turma,
+        score: `${record.score}%`,
+        mention: record.mention,
+        durationSeconds: String(record.durationSec),
+        duration: formatDuration(record.durationSec),
+        start: startDate.toLocaleString(`pt-BR`),
+        diagnosis: diagnosis,
+        errorsByTopic: errorsByTopic || `Nenhum erro registrado`
+      };
+
+      Object.keys(values).forEach(function(key) {
+        const input = document.createElement(`input`);
+        input.type = `hidden`;
+        input.name = `entry.${GOOGLE_FORM_ENTRY_IDS[key]}`;
+        input.value = values[key];
+        form.appendChild(input);
+      });
+
+      [`month`, `day`, `year`].forEach(function(part, index) {
+        const input = document.createElement(`input`);
+        input.type = `hidden`;
+        input.name = `entry.${GOOGLE_FORM_ENTRY_IDS.end}_${part}`;
+        input.value = String([
+          endDate.getMonth() + 1,
+          endDate.getDate(),
+          endDate.getFullYear()
+        ][index]);
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      try {
+        form.submit();
+        showSecurityToast(`Respostas encaminhadas ao Google Forms. Confira a planilha para confirmar o registro.`);
+      } catch (error) {
+        console.error(`Não foi possível encaminhar as respostas ao Google Forms.`, error);
+        showSecurityToast(`Não foi possível enviar ao Google Forms. As respostas continuam salvas neste dispositivo.`);
+      } finally {
+        form.remove();
+      }
+    }
+
+    /* =========================================================================
+       5. UTILITÁRIOS (FISHER-YATES, MENÇÃO ETEC, FORMATAÇÃO DE TEMPO)
+       ========================================================================= */
+    function fisherYatesShuffle(arr) {
+      const copy = arr.slice();
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = copy[i];
+        copy[i] = copy[j];
+        copy[j] = temp;
+      }
+      return copy;
+    }
+
+    function computeEtecMention(pct) {
+      if (pct <= 25) return { code: `I`, label: `Insuficiente (0% a 25%)` };
+      if (pct <= 50) return { code: `R`, label: `Regular (> 25% a 50%)` };
+      if (pct <= 75) return { code: `B`, label: `Bom (> 50% a 75%)` };
+      return { code: `MB`, label: `Muito Bom (> 75% a 100%)` };
+    }
+
+    function formatDuration(totalSeconds) {
+      const sec = Math.max(0, Math.floor(totalSeconds));
+      const h = String(Math.floor(sec / 3600)).padStart(2, `0`);
+      const m = String(Math.floor((sec % 3600) / 60)).padStart(2, `0`);
+      const s = String(sec % 60).padStart(2, `0`);
+      return `${h}:${m}:${s}`;
+    }
+
+    function formatClockTime(dateObj) {
+      const h = String(dateObj.getHours()).padStart(2, `0`);
+      const m = String(dateObj.getMinutes()).padStart(2, `0`);
+      const s = String(dateObj.getSeconds()).padStart(2, `0`);
+      return `${h}:${m}:${s}`;
+    }
+
+    function escapeHTML(str) {
+      return String(str)
+        .replace(/&/g, `&amp;`)
+        .replace(/</g, `&lt;`)
+        .replace(/>/g, `&gt;`)
+        .replace(/"/g, `&quot;`);
+    }
+
+    function showSecurityToast(msg) {
+      const toast = document.getElementById(`security-toast`);
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add(`visible`);
+      clearTimeout(toast._hideTimer);
+      toast._hideTimer = setTimeout(function() {
+        toast.classList.remove(`visible`);
+      }, 2800);
+    }
+
+    function switchView(viewId) {
+      const sections = document.querySelectorAll(`.view-section`);
+      sections.forEach(function(sec) {
+        sec.classList.remove(`active`);
+      });
+      const target = document.getElementById(viewId);
+      if (target) {
+        target.classList.add(`active`);
+      }
+      window.scrollTo({ top: 0, behavior: `auto` });
+    }
+
+    /* =========================================================================
+       6. INICIALIZAÇÃO & PERSISTÊNCIA SHIM API
+       ========================================================================= */
+    async function saveAppState() {
+      const safeState = normalizeAppState(appState);
+      try {
+        if (window.notebookAppApi && typeof window.notebookAppApi.setAppState === `function`) {
+          await window.notebookAppApi.setAppState(safeState);
+        }
+      } catch (err) {
+        /* Fallback silencioso caso executado fora do host */
+      }
+
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(safeState));
+      } catch (err) {
+        /* Falha de persistência local ignorada */
+      }
+    }
+
+    async function initApp() {
+      try {
+        if (window.notebookAppApi && typeof window.notebookAppApi.getAppState === `function`) {
+          const loaded = await window.notebookAppApi.getAppState();
+          if (loaded && Array.isArray(loaded.records)) {
+            appState = normalizeAppState(loaded);
+          } else {
+            appState = normalizeAppState({ records: [] });
+            await saveAppState();
+          }
+        } else {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            appState = normalizeAppState(JSON.parse(raw));
+          } else {
+            appState = normalizeAppState({ records: [] });
+            await saveAppState();
+          }
+        }
+      } catch (err) {
+        appState = normalizeAppState({ records: [] });
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+        } catch (saveErr) {
+          // Ignora erro silencioso de persistência local.
+        }
+      }
+
+      setupSecurityListeners();
+
+      if (window.notebookAppApi && typeof window.notebookAppApi.notifyAppReady === `function`) {
+        window.notebookAppApi.notifyAppReady();
+      }
+    }
+
+    /* =========================================================================
+       7. SEGURANÇA ANTI-FRAUDE
+       ========================================================================= */
+    function buildWatermark(name, turma, startFormatted) {
+      const grid = document.getElementById(`watermark-grid`);
+      if (!grid) return;
+      const label = `${escapeHTML(name)} · ${escapeHTML(turma)} · ${startFormatted} · ETEC`;
+      let html = ``;
+      for (let i = 0; i < 24; i++) {
+        html += `<div class="watermark-item">${label}<br>USO DIAGNÓSTICO RESTRITO</div>`;
+      }
+      grid.innerHTML = html;
+    }
+
+    function setupSecurityListeners() {
+      document.addEventListener(`contextmenu`, function(e) {
+        e.preventDefault();
+        if (currentSession.active) {
+          showSecurityToast(`Ação bloqueada: menu de contexto desativado durante a avaliação.`);
+        }
+      });
+
+      document.addEventListener(`copy`, function(e) {
+        if (currentSession.active) {
+          e.preventDefault();
+          showSecurityToast(`Cópia bloqueada pelo protocolo de integridade acadêmica.`);
+        }
+      });
+
+      document.addEventListener(`cut`, function(e) {
+        if (currentSession.active) {
+          e.preventDefault();
+        }
+      });
+
+      document.addEventListener(`paste`, function(e) {
+        if (currentSession.active) {
+          e.preventDefault();
+          showSecurityToast(`Colagem bloqueada durante a avaliação.`);
+        }
+      });
+
+      document.addEventListener(`keydown`, function(e) {
+        const key = (e.key || ``).toLowerCase();
+        const ctrlOrMeta = e.ctrlKey || e.metaKey;
+
+        if (e.key === `F12` || e.keyCode === 123) {
+          e.preventDefault();
+          showSecurityToast(`Inspeção de código (F12) bloqueada.`);
+          return false;
+        }
+        if (e.key === `PrintScreen` || e.keyCode === 44) {
+          e.preventDefault();
+          showSecurityToast(`Captura de tela (PrintScreen) registrada e bloqueada.`);
+          return false;
+        }
+        if (ctrlOrMeta && e.shiftKey && (key === `i` || key === `j` || key === `c`)) {
+          e.preventDefault();
+          showSecurityToast(`Ferramentas de desenvolvedor bloqueadas.`);
+          return false;
+        }
+        if (ctrlOrMeta && (key === `u` || key === `s` || key === `p`)) {
+          e.preventDefault();
+          showSecurityToast(`Atalho bloqueado pelo protocolo de segurança.`);
+          return false;
+        }
+        if (currentSession.active && ctrlOrMeta && (key === `c` || key === `v` || key === `x` || key === `a`)) {
+          e.preventDefault();
+          showSecurityToast(`Seleção e cópia de texto bloqueadas durante o exame.`);
+          return false;
+        }
+      });
+    }
+
+    /* =========================================================================
+       8. LOGIN E RENDERIZAÇÃO GARANTIDA DAS 100 QUESTÕES
+       ========================================================================= */
+    function handleStartExam(event) {
+      if (event) event.preventDefault();
+
+      const nameInput = document.getElementById(`student-name`);
+      const turmaSelect = document.getElementById(`student-turma`);
+      const nameErr = document.getElementById(`name-error`);
+      const turmaErr = document.getElementById(`turma-error`);
+
+      if (!nameInput || !turmaSelect) return;
+
+      const rawName = nameInput.value.trim().replace(/\s+/g, ` `);
+      const turmaVal = turmaSelect.value;
+
+      let valid = true;
+      if (rawName.length < 5) {
+        if (nameErr) nameErr.classList.add(`visible`);
+        valid = false;
+      } else {
+        if (nameErr) nameErr.classList.remove(`visible`);
+      }
+
+      if (!turmaVal) {
+        if (turmaErr) turmaErr.classList.add(`visible`);
+        valid = false;
+      } else {
+        if (turmaErr) turmaErr.classList.remove(`visible`);
+      }
+
+      if (!valid) return;
+
+      /* Prepara sessão com Fisher-Yates nas 100 questões e nas 4 alternativas */
+      const shuffledQs = fisherYatesShuffle(QUESTION_BANK).map(function(q) {
+        const shuffledOpts = fisherYatesShuffle(q.options);
+        return {
+          id: q.id,
+          topic: q.topic,
+          source: q.source,
+          passageId: q.passageId || null,
+          tree: q.tree || null,
+          prompt: q.prompt,
+          options: shuffledOpts
+        };
+      });
+
+      currentSession.active = true;
+      currentSession.studentName = rawName;
+      currentSession.turma = turmaVal;
+      currentSession.startTime = new Date();
+      currentSession.shuffledQuestions = shuffledQs;
+      currentSession.answers = {};
+      currentSession.filterMode = `all`;
+
+      const stuDisp = document.getElementById(`exam-student-display`);
+      const turDisp = document.getElementById(`exam-turma-display`);
+      if (stuDisp) stuDisp.textContent = rawName;
+      if (turDisp) turDisp.textContent = turmaVal;
+
+      buildWatermark(rawName, turmaVal, formatClockTime(currentSession.startTime));
+      document.body.classList.add(`exam-active`);
+
+      renderExamQuestions();
+      updateExamProgressUI();
+      startExamTimer();
+
+      const submitBtn = document.getElementById(`submit-exam-btn`);
+      if (submitBtn) {
+        submitBtn.dataset.armed = `false`;
+        submitBtn.textContent = `Finalizar e Enviar Avaliação`;
+      }
+      const warnMsg = document.getElementById(`submit-warning-msg`);
+      if (warnMsg) {
+        warnMsg.classList.remove(`visible`);
+        warnMsg.textContent = ``;
+      }
+
+      switchView(`exam-view`);
+    }
+
+    function renderExamQuestions() {
+      const container = document.getElementById(`questions-container`);
+      if (!container) return;
+
+      const letters = [`A`, `B`, `C`, `D`];
+      let htmlBuffer = ``;
+
+      currentSession.shuffledQuestions.forEach(function(q) {
+        let passageHtml = ``;
+        if (q.passageId && PASSAGES[q.passageId]) {
+          const p = PASSAGES[q.passageId];
+          const paragraphs = p.body.split(`\n\n`).map(function(par) {
+            return `<p class="passage-text">${escapeHTML(par)}</p>`;
+          }).join(``);
+          passageHtml = `
+            <details open class="passage-box">
+              <summary>
+                <span>Texto Base de Leitura e Análise</span>
+                <span>Recolher / Expandir</span>
+              </summary>
+              <div class="passage-title">${escapeHTML(p.title)}</div>
+              ${paragraphs}
+              <div class="passage-source">${escapeHTML(p.source)}</div>
+            </details>
+          `;
+        }
+
+        let treeHtml = ``;
+        if (q.tree) {
+          treeHtml = renderMorphTreeSVG(q.tree);
+        }
+
+        let optionsHtml = ``;
+        q.options.forEach(function(opt, idx) {
+          const letter = letters[idx];
+          optionsHtml += `
+            <button type="button"
+                    class="option-btn"
+                    data-qid="${q.id}"
+                    data-opt-idx="${idx}"
+                    onclick="selectOption('${q.id}', ${idx}, this)">
+              <span class="option-letter">${letter}</span>
+              <span>${escapeHTML(opt.text)}</span>
+            </button>
+          `;
+        });
+
+        /* Sem numeração estática de questões */
+        htmlBuffer += `
+          <article class="question-card" id="card-${q.id}" data-qid="${q.id}">
+            <div class="question-header">
+              <span class="topic-stamp">${escapeHTML(q.topic)} · ${escapeHTML(q.source)}</span>
+              <span class="status-stamp" id="status-${q.id}">Aguardando resposta</span>
+            </div>
+            ${passageHtml}
+            ${treeHtml}
+            <p class="question-stem">${q.prompt.replace(/\n/g, `<br>`)}</p>
+            <div class="options-list">
+              ${optionsHtml}
+            </div>
+          </article>
+        `;
+      });
+
+      container.innerHTML = htmlBuffer;
+    }
+
+    function selectOption(qid, optIdx, btnEl) {
+      currentSession.answers[qid] = optIdx;
+
+      const card = document.getElementById(`card-${qid}`);
+      if (card) {
+        card.classList.add(`answered`);
+        const buttons = card.querySelectorAll(`.option-btn`);
+        buttons.forEach(function(b) {
+          b.classList.remove(`selected`);
+        });
+        if (btnEl) btnEl.classList.add(`selected`);
+
+        if (currentSession.filterMode === `unanswered`) {
+          card.classList.add(`hidden-by-filter`);
+        }
+      }
+
+      const statusEl = document.getElementById(`status-${qid}`);
+      const letters = [`A`, `B`, `C`, `D`];
+      if (statusEl) {
+        statusEl.textContent = `Alternativa ${letters[optIdx]} selecionada`;
+      }
+
+      /* Reseta confirmação armada de envio caso responda mais questões */
+      const submitBtn = document.getElementById(`submit-exam-btn`);
+      if (submitBtn && submitBtn.dataset.armed === `true`) {
+        submitBtn.dataset.armed = `false`;
+        submitBtn.textContent = `Finalizar e Enviar Avaliação`;
+      }
+      const warnMsg = document.getElementById(`submit-warning-msg`);
+      if (warnMsg) warnMsg.classList.remove(`visible`);
+
+      updateExamProgressUI();
+    }
+
+    function updateExamProgressUI() {
+      const total = currentSession.shuffledQuestions.length || 100;
+      const answeredCount = Object.keys(currentSession.answers).length;
+      const pending = Math.max(0, total - answeredCount);
+      const pct = Math.round((answeredCount / total) * 100);
+
+      const progDisp = document.getElementById(`exam-progress-display`);
+      const progBar = document.getElementById(`exam-progress-bar`);
+      const pendingBadge = document.getElementById(`pending-count-badge`);
+
+      if (progDisp) progDisp.textContent = `${answeredCount} / ${total}`;
+      if (progBar) progBar.style.width = `${pct}%`;
+      if (pendingBadge) pendingBadge.textContent = String(pending);
+    }
+
+    function setQuestionFilter(mode) {
+      currentSession.filterMode = mode;
+      const tabAll = document.getElementById(`tab-all`);
+      const tabUn = document.getElementById(`tab-unanswered`);
+      if (tabAll) tabAll.classList.toggle(`active`, mode === `all`);
+      if (tabUn) tabUn.classList.toggle(`active`, mode === `unanswered`);
+
+      currentSession.shuffledQuestions.forEach(function(q) {
+        const card = document.getElementById(`card-${q.id}`);
+        if (!card) return;
+        const isAnswered = Object.prototype.hasOwnProperty.call(currentSession.answers, q.id);
+        if (mode === `unanswered` && isAnswered) {
+          card.classList.add(`hidden-by-filter`);
+        } else {
+          card.classList.remove(`hidden-by-filter`);
+        }
+      });
+    }
+
+    function scrollToNextUnanswered() {
+      const nextQ = currentSession.shuffledQuestions.find(function(q) {
+        return !Object.prototype.hasOwnProperty.call(currentSession.answers, q.id);
+      });
+      if (!nextQ) {
+        showSecurityToast(`Todas as 100 questões já foram respondidas.`);
+        return;
+      }
+      if (currentSession.filterMode === `unanswered`) {
+        const card = document.getElementById(`card-${nextQ.id}`);
+        if (card) card.classList.remove(`hidden-by-filter`);
+      }
+      const target = document.getElementById(`card-${nextQ.id}`);
+      if (target) {
+        target.scrollIntoView({ behavior: `smooth`, block: `start` });
+      }
+    }
+
+    function startExamTimer() {
+      stopExamTimer();
+      const timerDisp = document.getElementById(`exam-timer-display`);
+      currentSession.timerInterval = setInterval(function() {
+        if (!currentSession.startTime || !timerDisp) return;
+        const elapsed = Math.floor((Date.now() - currentSession.startTime.getTime()) / 1000);
+        timerDisp.textContent = formatDuration(elapsed);
+      }, 1000);
+    }
+
+    function stopExamTimer() {
+      if (currentSession.timerInterval) {
+        clearInterval(currentSession.timerInterval);
+        currentSession.timerInterval = null;
+      }
+    }
+
+    /* =========================================================================
+       9. FINALIZAÇÃO, CÁLCULO DE MENÇÃO E TÓPICOS PARA REFORÇO
+       ========================================================================= */
+    async function handleSubmitExam(btn) {
+      const total = currentSession.shuffledQuestions.length;
+      const answered = Object.keys(currentSession.answers).length;
+      const missing = total - answered;
+      const warnMsg = document.getElementById(`submit-warning-msg`);
+
+      if (missing > 0 && btn && btn.dataset.armed !== `true`) {
+        btn.dataset.armed = `true`;
+        btn.textContent = `Confirmar Envio com ${missing} em Branco`;
+        if (warnMsg) {
+          warnMsg.textContent = `Atenção: restam ${missing} questão(ões) sem resposta. Clique novamente em confirmar para finalizar assim mesmo ou responda às pendentes.`;
+          warnMsg.classList.add(`visible`);
+        }
+        return;
+      }
+
+      stopExamTimer();
+      const endTime = new Date();
+      const durationSec = Math.max(1, Math.floor((endTime.getTime() - currentSession.startTime.getTime()) / 1000));
+
+      let totalHits = 0;
+      const topicStats = {};
+
+      currentSession.shuffledQuestions.forEach(function(q) {
+        if (!topicStats[q.topic]) {
+          topicStats[q.topic] = { total: 0, hits: 0 };
+        }
+        topicStats[q.topic].total += 1;
+
+        const chosenIdx = currentSession.answers[q.id];
+        if (typeof chosenIdx === `number` && q.options[chosenIdx] && q.options[chosenIdx].isCorrect) {
+          totalHits += 1;
+          topicStats[q.topic].hits += 1;
+        }
+      });
+
+      const pct = Math.round((totalHits / total) * 100);
+      const mentionObj = computeEtecMention(pct);
+
+      /* Determina Tópicos para Reforço (< 60% de acerto no tópico, ordenados do menor aproveitamento) */
+      const weakTopicsArr = Object.keys(topicStats)
+        .map(function(t) {
+          const st = topicStats[t];
+          return {
+            topic: t,
+            rate: st.total > 0 ? (st.hits / st.total) * 100 : 0
+          };
+        })
+        .filter(function(item) { return item.rate < 60; })
+        .sort(function(a, b) { return a.rate - b.rate; })
+        .map(function(item) { return item.topic; });
+
+      const finalWeakTopics = weakTopicsArr.length > 0
+        ? weakTopicsArr
+        : [`Desempenho sólido (revisão de manutenção)`];
+
+      const record = {
+        id: `rec_${Date.now()}`,
+        name: currentSession.studentName,
+        turma: currentSession.turma,
+        score: pct,
+        hits: totalHits,
+        mention: mentionObj.code,
+        durationSec: durationSec,
+        startTimeISO: currentSession.startTime.toISOString(),
+        endTimeISO: endTime.toISOString(),
+        startFormatted: formatClockTime(currentSession.startTime),
+        endFormatted: formatClockTime(endTime),
+        weakTopics: finalWeakTopics,
+        answers: buildAnswerSnapshot()
+      };
+
+      appState.records.push(record);
+      await saveAppState();
+      submitGoogleFormResponse(record, topicStats);
+
+      currentSession.active = false;
+      document.body.classList.remove(`exam-active`);
+
+      renderStudentResult(record, mentionObj, topicStats);
+      switchView(`result-view`);
+    }
+
+    function renderStudentResult(record, mentionObj, topicStats) {
+      const rName = document.getElementById(`res-name`);
+      const rTurma = document.getElementById(`res-turma`);
+      const rScore = document.getElementById(`res-score`);
+      const rHits = document.getElementById(`res-hits`);
+      const rMention = document.getElementById(`res-mention`);
+      const rMentionLbl = document.getElementById(`res-mention-label`);
+      const rDur = document.getElementById(`res-duration`);
+      const rTimes = document.getElementById(`res-timestamps`);
+      const rBars = document.getElementById(`result-topic-bars`);
+      const rReinf = document.getElementById(`res-reinforcement`);
+
+      if (rName) rName.textContent = record.name;
+      if (rTurma) rTurma.textContent = record.turma;
+      if (rScore) rScore.textContent = `${record.score}%`;
+      if (rHits) rHits.textContent = `${record.hits} de 100 acertos`;
+      if (rMention) {
+        rMention.innerHTML = `<span class="mention-badge mention-${record.mention}" style="font-size: 1.4rem; padding: 0.25rem 0.75rem;">${record.mention}</span>`;
+      }
+      if (rMentionLbl) rMentionLbl.textContent = mentionObj.label;
+      if (rDur) rDur.textContent = formatDuration(record.durationSec);
+      if (rTimes) rTimes.textContent = `${record.startFormatted} → ${record.endFormatted}`;
+
+      if (rBars) {
+        let barsHtml = ``;
+        Object.keys(topicStats).forEach(function(topicName) {
+          const st = topicStats[topicName];
+          const pct = Math.round((st.hits / st.total) * 100);
+          let cls = ``;
+          if (pct < 50) cls = `weak`;
+          else if (pct >= 75) cls = `strong`;
+          barsHtml += `
+            <div class="topic-bar-row">
+              <span style="font-size: 0.9rem; font-weight: 500;">${escapeHTML(topicName)}</span>
+              <div class="topic-bar-track">
+                <div class="topic-bar-fill ${cls}" style="width: ${pct}%;"></div>
+              </div>
+              <span class="topic-bar-num">${st.hits}/${st.total} (${pct}%)</span>
+            </div>
+          `;
+        });
+        rBars.innerHTML = barsHtml;
+      }
+
+      if (rReinf) {
+        rReinf.textContent = record.weakTopics.join(` · `);
+      }
+    }
+
+    function returnToLogin() {
+      const form = document.getElementById(`login-form`);
+      if (form) form.reset();
+      switchView(`login-view`);
+    }
+
+    window.addEventListener(`DOMContentLoaded`, initApp);
+  </script>
+</body>
+</html>
